@@ -18,6 +18,7 @@
             --color-dark-olive: #474130;   /* Dark Olive / Header & Footer */
             --color-success: #4CAF50;
             --color-danger: #D32F2F;
+            --color-warning: #FFC107;
         }
 
         body {
@@ -58,13 +59,28 @@
             margin-top: 0.5rem;
             color: var(--color-cream);
         }
+        
+        #user-id-display {
+            font-family: monospace;
+            display: block;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background-color: var(--color-darkest);
+            color: var(--color-warning);
+            font-size: 0.8rem;
+            border-radius: 4px;
+            max-width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            word-break: break-all;
+        }
 
         /* --- Main Content Area & Layout --- */
         main {
             flex-grow: 1;
             padding: 2rem;
             display: grid;
-            grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr); /* Two columns for large screens */
+            grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr);
             gap: 2rem;
             max-width: 1400px;
             margin: 0 auto;
@@ -73,7 +89,7 @@
 
         @media (max-width: 1024px) {
             main {
-                grid-template-columns: 1fr; /* Single column on smaller screens */
+                grid-template-columns: 1fr;
                 padding: 1rem;
             }
         }
@@ -106,7 +122,7 @@
             font-weight: 700;
         }
 
-        /* --- Button Styling --- */
+        /* --- Button & Form Styling --- */
         .btn-container {
             display: flex;
             gap: 0.5rem;
@@ -152,7 +168,6 @@
             color: var(--color-cream);
         }
 
-        /* --- Input & Form Styling --- */
         input[type="text"], input[type="number"], select {
             width: 100%;
             padding: 0.7rem;
@@ -216,9 +231,9 @@
         .repo-actions {
             display: flex;
             gap: 0.5rem;
+            flex-shrink: 0;
         }
         
-        /* Progress Bar Styling */
         .progress-bar-container {
             width: 100%;
             background-color: var(--color-darkest);
@@ -266,7 +281,8 @@
     <header>
         <h1>Pledge-Box</h1>
         <p>Your secure space for goal-oriented and collaborative savings.</p>
-        <div id="user-info">Authenticating...</div>
+        <div id="user-info">Initializing Firebase...</div>
+        <span id="user-id-display"></span>
     </header>
 
     <main>
@@ -302,7 +318,7 @@
             <h3 style="margin-top: 2rem; color: var(--color-cream);">My Repositories</h3>
             <div id="personal-repo-list" class="repo-list">
                 <!-- Repositories will be dynamically added here -->
-                <p style="color: var(--color-light-taupe);">No personal repositories yet.</p>
+                <p style="color: var(--color-light-taupe);">Awaiting authentication...</p>
             </div>
         </div>
 
@@ -314,7 +330,7 @@
             <div style="background-color: var(--color-dark-olive); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
                 <h3>Join or Create Group</h3>
                 <label for="group-code">Access Code:</label>
-                <input type="text" id="group-code" placeholder="Enter 4-letter Code or New Name">
+                <input type="text" id="group-code" placeholder="Enter 4-10 letter Code or New Name">
                 <div class="btn-container">
                     <button class="btn btn-primary" onclick="joinGroup()">Join Existing</button>
                     <button class="btn btn-secondary" onclick="createGroup()">Create New</button>
@@ -325,7 +341,7 @@
             <h3 style="margin-top: 2rem; color: var(--color-cream);">My Groups</h3>
             <div id="group-repo-list" class="repo-list">
                 <!-- Groups will be dynamically added here -->
-                <p style="color: var(--color-light-taupe);">You haven't joined any groups.</p>
+                <p style="color: var(--color-light-taupe);">Awaiting authentication...</p>
             </div>
         </div>
     </main>
@@ -340,17 +356,29 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, collection, setDoc, runTransaction, arrayRemove, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, collection, setDoc, runTransaction, arrayRemove, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global Variables for Canvas Environment
+        // --- 1. GLOBAL STATE & CONFIGURATION ---
+        
+        // Canvas Global Variables (with robust fallbacks for external testing)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const canvasFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const canvasAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let db, auth, userId = null;
-        let userDataListener, groupDataListener = null;
-        window.currentUserData = { mainBalance: 0, repositories: [] };
-        window.userGroupReferences = []; // Array of group access codes the user is a member of
+        let userDataListener = null;
+        let groupDataListener = null;
+
+        // Global data holders
+        window.currentUserData = { mainBalance: 0, repositories: [], groups: [] };
+        window.userGroupReferences = []; 
+        
+        // Icons for personalization
+        const ICON_MAP = {
+            '🏠': 'Home', '🚗': 'Car', '✈️': 'Travel', '📱': 'Phone', 
+            '💍': 'Jewelry', '📚': 'Education', '🎁': 'Gift', '💡': 'Project',
+            '🧑‍🤝‍🧑': 'Friendship', '🌳': 'Nature', '🪙': 'Invest', '🎮': 'Gaming'
+        };
         
         // Expose functions globally for HTML buttons
         window.depositToMain = depositToMain;
@@ -362,54 +390,68 @@
         window.depositToGroup = depositToGroup;
         window.leaveGroup = leaveGroup;
 
-        // --- 1. FIREBASE INITIALIZATION AND AUTHENTICATION ---
+        // --- 2. FIREBASE INITIALIZATION AND AUTHENTICATION ---
 
         document.addEventListener('DOMContentLoaded', () => {
-            const app = initializeApp(firebaseConfig);
+            // Populate the icon selector
+            const iconSelect = document.getElementById('repo-icon-select');
+            Object.keys(ICON_MAP).forEach(icon => {
+                const option = document.createElement('option');
+                option.value = icon;
+                option.textContent = `${icon} - ${ICON_MAP[icon]}`;
+                iconSelect.appendChild(option);
+            });
+            
+            // Check if Firebase config is available
+            if (Object.keys(canvasFirebaseConfig).length === 0) {
+                document.getElementById('user-info').textContent = "ERROR: Firebase Config Missing.";
+                showStatus("Firebase Configuration is missing. App will only work in the Canvas environment.", 'danger');
+                return;
+            }
+
+            const app = initializeApp(canvasFirebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
             
-            const iconSelect = document.getElementById('repo-icon-select');
-            ['🏠', '🚗', '✈️', '📱', '💍', '📚', '🎁', '💡'].forEach(icon => {
-                const option = document.createElement('option');
-                option.value = icon;
-                option.textContent = icon + ' - ' + (icon === '🏠' ? 'Home' : icon === '🚗' ? 'Car' : icon === '✈️' ? 'Travel' : icon === '📱' ? 'Phone' : icon === '💍' ? 'Jewelry' : icon === '📚' ? 'Education' : icon === '🎁' ? 'Gift' : 'Hobby');
-                iconSelect.appendChild(option);
-            });
-
+            // Start Authentication Listener
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     userId = user.uid;
-                    document.getElementById('user-info').textContent = `Logged in as: ${userId.substring(0, 15)}...`;
+                    document.getElementById('user-info').textContent = `User Authenticated.`;
+                    document.getElementById('user-id-display').textContent = `ID: ${userId}`;
                     
                     // Start listening to the user's private data
                     startUserListeners();
                 } else {
-                    document.getElementById('user-info').textContent = "Authenticating...";
+                    document.getElementById('user-info').textContent = "Attempting Sign-In...";
                     try {
-                        if (initialAuthToken) {
-                            await signInWithCustomToken(auth, initialAuthToken);
+                        if (canvasAuthToken) {
+                            await signInWithCustomToken(auth, canvasAuthToken);
                         } else {
                             await signInAnonymously(auth);
                         }
                     } catch (error) {
                         console.error("Auth error:", error);
-                        showStatus("Authentication Failed.", 'danger');
+                        showStatus("Authentication Failed. Check console.", 'danger');
+                        document.getElementById('user-info').textContent = "Authentication Failed.";
                     }
                 }
             });
         });
 
-        // --- 2. FIRESTORE PATHS AND LISTENERS ---
+        // --- 3. FIRESTORE PATHS AND LISTENERS ---
 
         const getUserDocRef = (uid) => doc(db, 'artifacts', appId, 'users', uid, 'userDoc', 'data');
         const getGroupDocRef = (accessCode) => doc(db, 'artifacts', appId, 'public', 'data', 'groups', accessCode);
 
         function startUserListeners() {
+            if (!db || !userId) return;
             if (userDataListener) userDataListener(); // Detach previous listener
 
             // 1. Listen to Private User Data
             userDataListener = onSnapshot(getUserDocRef(userId), (doc) => {
+                const listEl = document.getElementById('personal-repo-list');
+                
                 if (doc.exists()) {
                     window.currentUserData = doc.data();
                     // Ensure structure is initialized
@@ -420,9 +462,10 @@
                     renderMainBalance();
                     renderPersonalRepositories();
                     
-                    // Check for group membership changes
-                    if (JSON.stringify(window.currentUserData.groups.sort()) !== JSON.stringify(window.userGroupReferences.sort())) {
-                         window.userGroupReferences = window.currentUserData.groups || [];
+                    // Check for group membership changes and start group listeners
+                    const currentGroups = window.currentUserData.groups || [];
+                    if (JSON.stringify(currentGroups.sort()) !== JSON.stringify(window.userGroupReferences.sort())) {
+                         window.userGroupReferences = currentGroups;
                          startGroupListeners();
                     }
                 } else {
@@ -431,27 +474,29 @@
                         mainBalance: 0.00, 
                         repositories: [],
                         groups: []
-                    });
-                    showStatus("Welcome! Your financial locker is ready.", 'success');
+                    }).catch(e => console.error("Initial doc creation failed:", e));
+                    listEl.innerHTML = '<p style="color: var(--color-light-taupe);">Setting up your locker...</p>';
                 }
             }, (error) => {
                 console.error("Error fetching user data:", error);
-                showStatus("Error loading user data.", 'danger');
+                showStatus("Error loading private user data.", 'danger');
             });
         }
         
         function startGroupListeners() {
+            if (!db) return;
             if (groupDataListener) groupDataListener(); // Detach previous listener
             
-            // 2. Listen to all groups the user belongs to
+            const groupListEl = document.getElementById('group-repo-list');
             const groupRefs = window.userGroupReferences.map(code => getGroupDocRef(code));
             
             if (groupRefs.length === 0) {
-                 document.getElementById('group-repo-list').innerHTML = '<p style="color: var(--color-light-taupe);">You haven\'t joined any groups.</p>';
+                 groupListEl.innerHTML = '<p style="color: var(--color-light-taupe);">You haven\'t joined any groups. Create or Join one!</p>';
                  return;
             }
 
-            groupDataListener = onSnapshot(getFirestore(initializeApp(firebaseConfig)), groupRefs, (snapshots) => {
+            // Listen to all referenced groups in one go
+            groupDataListener = onSnapshot(db, groupRefs, (snapshots) => {
                 let html = '';
                 snapshots.forEach(doc => {
                     if (doc.exists()) {
@@ -459,35 +504,39 @@
                         const myContribution = group.members[userId]?.contribution || 0;
                         const isAdmin = group.members[userId]?.isAdmin || false;
                         
+                        const progress = group.target > 0 ? (group.currentBalance / group.target) * 100 : 0;
+                        
                         html += `
                             <div class="group-item" data-code="${group.accessCode}">
-                                <div class="repo-icon">👥</div>
+                                <div class="repo-icon">🧑‍🤝‍🧑</div>
                                 <div class="repo-details">
-                                    <h4>${group.groupName} (${group.accessCode})</h4>
-                                    <p>Total Balance: BDT ${group.currentBalance.toFixed(2)} | Target: BDT ${group.target.toFixed(2)}</p>
-                                    <p style="font-size:0.8rem; color: var(--color-light-taupe);">My Contribution: BDT ${myContribution.toFixed(2)} ${isAdmin ? '(Admin)' : ''}</p>
+                                    <h4>${group.groupName} (${group.accessCode}) ${isAdmin ? '(Admin)' : ''}</h4>
+                                    <p>Total Balance: BDT ${group.currentBalance.toFixed(2)} / Target: BDT ${group.target.toFixed(2)}</p>
+                                    <div class="progress-bar-container"><div class="progress-bar" style="width: ${Math.min(progress, 100)}%;"></div></div>
+                                    <p style="font-size:0.8rem; color: var(--color-cream);">My Contribution: BDT ${myContribution.toFixed(2)}</p>
                                 </div>
                                 <div class="repo-actions">
-                                    <button class="btn btn-primary" onclick="depositToGroup('${group.accessCode}')">Deposit</button>
-                                    <button class="btn btn-danger" onclick="leaveGroup('${group.accessCode}', ${isAdmin})">Leave/Close</button>
+                                    <button class="btn btn-primary" onclick="depositToGroup('${group.accessCode}')">Fund</button>
+                                    <button class="btn btn-danger" onclick="leaveGroup('${group.accessCode}', ${isAdmin})">Leave</button>
                                 </div>
                             </div>
                         `;
                     }
                 });
-                document.getElementById('group-repo-list').innerHTML = html;
+                groupListEl.innerHTML = html;
             });
         }
         
-        // --- 3. RENDER FUNCTIONS ---
+        // --- 4. RENDER FUNCTIONS ---
         
         function renderMainBalance() {
-            document.getElementById('main-balance').textContent = window.currentUserData.mainBalance.toFixed(2);
+            document.getElementById('main-balance').textContent = (window.currentUserData.mainBalance || 0).toFixed(2);
         }
 
         function renderPersonalRepositories() {
             const listElement = document.getElementById('personal-repo-list');
             const repos = window.currentUserData.repositories || [];
+            
             if (repos.length === 0) {
                 listElement.innerHTML = '<p style="color: var(--color-light-taupe);">No personal repositories yet. Create one above!</p>';
                 return;
@@ -495,7 +544,7 @@
 
             listElement.innerHTML = repos.map(repo => {
                 const percentage = repo.target > 0 ? (repo.current / repo.target) * 100 : 0;
-                const statusColor = percentage >= 100 ? 'var(--color-success)' : 'var(--color-cream)';
+                const statusColor = percentage >= 100 ? 'var(--color-success)' : 'var(--color-light-taupe)';
                 
                 return `
                     <div class="repo-item" data-id="${repo.id}">
@@ -516,9 +565,11 @@
             }).join('');
         }
 
-        // --- 4. CORE FUNCTIONALITY (TRANSACTIONS) ---
+        // --- 5. CORE FUNCTIONALITY (TRANSACTIONS) ---
         
         async function depositToMain() {
+            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+
             const amountInput = document.getElementById('deposit-amount');
             const amount = parseFloat(amountInput.value);
             amountInput.value = ''; // Clear input
@@ -542,17 +593,19 @@
         }
         
         async function createPersonalRepository() {
+            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+
             const name = document.getElementById('repo-name').value.trim();
             const target = parseFloat(document.getElementById('repo-target').value);
             const icon = document.getElementById('repo-icon-select').value;
             
             if (!name || isNaN(target) || target <= 0) {
-                showStatus("Please provide a valid name and target amount.", 'danger');
+                showStatus("Please provide a valid name and positive target amount.", 'danger');
                 return;
             }
 
             const newRepo = {
-                id: crypto.randomUUID(), // Unique ID for the repository
+                id: crypto.randomUUID(), 
                 name: name,
                 target: target,
                 current: 0.00,
@@ -560,6 +613,7 @@
             };
 
             try {
+                // Use arrayUnion for robust addition to the list
                 await setDoc(getUserDocRef(userId), { 
                     repositories: arrayUnion(newRepo) 
                 }, { merge: true });
@@ -571,9 +625,13 @@
         }
         
         async function transferToRepo(repoId) {
-            const amount = parseFloat(prompt("Enter amount to transfer from Main Balance:"));
+            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+
+            const amountStr = prompt("Enter amount to transfer from Main Balance:");
+            if (amountStr === null) return;
+            const amount = parseFloat(amountStr);
             
-            if (isNaN(amount) || amount <= 0) return;
+            if (isNaN(amount) || amount <= 0) { showStatus("Invalid amount entered.", 'danger'); return; }
 
             try {
                 await runTransaction(db, async (transaction) => {
@@ -606,10 +664,13 @@
         }
         
         async function deleteRepo(repoId, repoName) {
-            const confirmDelete = confirm(`Are you sure you want to LIQUIDATE "${repoName}"? All funds will return to your Main Balance.`);
+            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+
+            const confirmDelete = window.confirm(`Are you sure you want to LIQUIDATE "${repoName}"? All saved funds will return to your Main Balance.`);
             if (!confirmDelete) return;
 
             try {
+                let refundAmount = 0;
                 await runTransaction(db, async (transaction) => {
                     const userDoc = await transaction.get(getUserDocRef(userId));
                     const data = userDoc.data();
@@ -620,12 +681,13 @@
                          throw new Error("Repository not found.");
                     }
                     
-                    const refundAmount = repo.current;
-                    const updatedRepositories = repositories.filter(r => r.id !== repoId);
+                    refundAmount = repo.current;
+                    const repoToRemove = { id: repo.id, name: repo.name, target: repo.target, current: repo.current, icon: repo.icon };
                     
+                    // Atomically remove the old object and update balance
                     transaction.update(getUserDocRef(userId), { 
                         mainBalance: data.mainBalance + refundAmount,
-                        repositories: updatedRepositories
+                        repositories: arrayRemove(repoToRemove)
                     });
                 });
                 showStatus(`Repository "${repoName}" liquidated. BDT ${refundAmount.toFixed(2)} refunded to Main Balance.`, 'success');
@@ -635,9 +697,11 @@
             }
         }
         
-        // --- 5. GROUP FUNCTIONALITY ---
+        // --- 6. GROUP FUNCTIONALITY ---
 
         async function createGroup() {
+            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+
             const codeInput = document.getElementById('group-code');
             const newCode = codeInput.value.trim().toUpperCase();
             codeInput.value = '';
@@ -647,8 +711,11 @@
                 return;
             }
             
-            const targetAmount = parseFloat(prompt("Enter the TARGET amount for the new group fund (e.g., 50000):"));
-            if (isNaN(targetAmount) || targetAmount <= 0) return;
+            const targetAmountStr = prompt("Enter the TARGET amount for the new group fund (e.g., 50000):");
+            if (targetAmountStr === null) return;
+            const targetAmount = parseFloat(targetAmountStr);
+            
+            if (isNaN(targetAmount) || targetAmount <= 0) { showStatus("Invalid target amount.", 'danger'); return; }
 
             try {
                 const groupRef = getGroupDocRef(newCode);
@@ -662,7 +729,7 @@
                     // Create the new group document (Public Data)
                     transaction.set(groupRef, {
                         accessCode: newCode,
-                        groupName: newCode, // Use code as initial name
+                        groupName: newCode, 
                         target: targetAmount,
                         currentBalance: 0.00,
                         members: {
@@ -683,6 +750,8 @@
         }
 
         async function joinGroup() {
+            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+
             const codeInput = document.getElementById('group-code');
             const code = codeInput.value.trim().toUpperCase();
             codeInput.value = '';
@@ -729,9 +798,13 @@
         }
         
         async function depositToGroup(accessCode) {
-            const amount = parseFloat(prompt("Enter amount to transfer from Main Balance to the group:"));
+            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+
+            const amountStr = prompt(`Enter amount to transfer from Main Balance to group ${accessCode}:`);
+            if (amountStr === null) return;
+            const amount = parseFloat(amountStr);
             
-            if (isNaN(amount) || amount <= 0) return;
+            if (isNaN(amount) || amount <= 0) { showStatus("Invalid amount entered.", 'danger'); return; }
             
             try {
                 await runTransaction(db, async (transaction) => {
@@ -773,38 +846,44 @@
         }
         
         async function leaveGroup(accessCode, isAdmin) {
+            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+
             if (isAdmin) {
-                const confirmClose = confirm("WARNING: As admin, leaving will CLOSE the group! All funds will be returned to contributors' main balances based on their share. Proceed?");
+                const confirmClose = window.confirm("WARNING: As admin, leaving will CLOSE the group! All funds will be returned to contributors. Proceed?");
                 if (!confirmClose) return;
                 
                 await liquidateGroup(accessCode);
                 
             } else {
-                const confirmLeave = confirm("Are you sure you want to leave this group? Your contribution will remain in the fund until the group is closed.");
+                const confirmLeave = window.confirm("Are you sure you want to leave this group? Your contribution will remain in the fund until the group is closed by an admin.");
                 if (!confirmLeave) return;
 
-                // Simple leave (removes reference from user's list)
-                await runTransaction(db, async (transaction) => {
-                    // 1. Remove user from group's member list (Public Data)
-                    const groupDoc = await transaction.get(getGroupDocRef(accessCode));
-                    const groupData = groupDoc.data();
-                    
-                    // Create new members object without the current user
-                    const updatedMembers = Object.keys(groupData.members).reduce((acc, key) => {
-                        if (key !== userId) {
-                            acc[key] = groupData.members[key];
-                        }
-                        return acc;
-                    }, {});
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        // 1. Remove user from group's member list (Public Data)
+                        const groupDoc = await transaction.get(getGroupDocRef(accessCode));
+                        const groupData = groupDoc.data();
+                        
+                        // Create new members object without the current user
+                        const updatedMembers = Object.keys(groupData.members).reduce((acc, key) => {
+                            if (key !== userId) {
+                                acc[key] = groupData.members[key];
+                            }
+                            return acc;
+                        }, {});
 
-                    transaction.update(getGroupDocRef(accessCode), { members: updatedMembers });
+                        transaction.update(getGroupDocRef(accessCode), { members: updatedMembers });
 
-                    // 2. Remove group reference from user's private document
-                    transaction.update(getUserDocRef(userId), { 
-                        groups: arrayRemove(accessCode)
+                        // 2. Remove group reference from user's private document
+                        transaction.update(getUserDocRef(userId), { 
+                            groups: arrayRemove(accessCode)
+                        });
                     });
-                });
-                showStatus(`Successfully left group ${accessCode}.`, 'success');
+                    showStatus(`Successfully left group ${accessCode}. Your funds remain until liquidation.`, 'success');
+                } catch (error) {
+                    console.error("Leave group error:", error);
+                    showStatus(error.message || "Failed to leave group.", 'danger');
+                }
             }
         }
 
@@ -819,12 +898,13 @@
                     const totalBalance = groupData.currentBalance;
                     const members = groupData.members;
 
-                    // 1. Calculate total contribution for percentage distribution
                     const totalContribution = Object.values(members).reduce((sum, m) => sum + m.contribution, 0);
 
                     for (const memberId in members) {
                         const contribution = members[memberId].contribution;
-                        const userRefund = totalBalance * (contribution / totalContribution);
+                        
+                        // Use the exact contribution amount for refund, not percentage, for simplicity and fairness
+                        const userRefund = contribution; 
                         
                         const memberUserDocRef = getUserDocRef(memberId);
                         const memberUserDoc = await transaction.get(memberUserDocRef);
@@ -842,20 +922,20 @@
                     // 2. Delete the Group Document (Public Data)
                     transaction.delete(groupRef);
                 });
-                showStatus(`Group ${accessCode} has been successfully closed and funds distributed.`, 'success');
+                showStatus(`Group ${accessCode} has been successfully closed and all contributions refunded.`, 'success');
             } catch (error) {
                 console.error("Group liquidation error:", error);
                 showStatus(error.message || "Group liquidation failed.", 'danger');
             }
         }
 
-        // --- 6. UTILITY FUNCTIONS ---
+        // --- 7. UTILITY FUNCTIONS ---
         
         function showStatus(message, type = 'success') {
             const statusDiv = document.getElementById('status-message');
             statusDiv.textContent = message;
             statusDiv.className = 'show'; // Remove other classes
-            statusDiv.style.backgroundColor = type === 'success' ? 'var(--color-success)' : 'var(--color-danger)';
+            statusDiv.style.backgroundColor = type === 'success' ? 'var(--color-success)' : type === 'danger' ? 'var(--color-danger)' : 'var(--color-warning)';
             statusDiv.style.color = type === 'success' ? 'var(--color-darkest)' : 'var(--color-cream)';
 
             setTimeout(() => {
@@ -863,9 +943,6 @@
             }, 3500);
         }
 
-        // Initialize Firebase logging for debug (optional, but good practice)
-        // import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        // setLogLevel('Debug');
     </script>
 </body>
 </html>
