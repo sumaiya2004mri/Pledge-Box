@@ -3,93 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pledge-Box: Demo Dashboard</title>
+<title>Pledge-Box: Full Demo Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-    --color-darkest: #20201A;
-    --color-muted-brown: #907B60;
-    --color-light-taupe: #C1B6AE;
-    --color-cream: #E9D9C7;
-    --color-dark-olive: #474130;
-    --color-success: #4CAF50;
-    --color-danger: #D32F2F;
-    --color-warning: #FFC107;
+  --color-darkest: #20201A;
+  --color-muted-brown: #907B60;
+  --color-light-taupe: #C1B6AE;
+  --color-cream: #E9D9C7;
+  --color-dark-olive: #474130;
+  --color-success: #4CAF50;
+  --color-danger: #D32F2F;
+  --color-warning: #FFC107;
 }
 body {
-    margin: 0; font-family: 'Inter', sans-serif;
-    background-color: var(--color-darkest);
-    color: var(--color-cream);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--color-darkest);
+  color: var(--color-cream);
 }
 header {
-    text-align: center;
-    background-color: var(--color-dark-olive);
-    padding: 1.5rem;
-    border-bottom: 2px solid var(--color-muted-brown);
+  text-align: center;
+  background-color: var(--color-dark-olive);
+  padding: 1.5rem;
+  border-bottom: 2px solid var(--color-muted-brown);
 }
 header h1 {margin: 0; font-size: 2rem;}
 .demo-mode-banner {
-    background-color: var(--color-danger);
-    color: var(--color-cream);
-    padding: 0.5rem;
-    text-transform: uppercase;
-    font-weight: bold;
+  background-color: var(--color-success);
+  color: var(--color-darkest);
+  padding: 0.5rem;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 main {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 1.5rem;
 }
-@media (max-width:900px) { main {grid-template-columns:1fr;} }
+@media (max-width:900px){ main {grid-template-columns:1fr;} }
 .section-card {
-    background-color: var(--color-muted-brown);
-    padding: 1rem;
-    border-radius: 10px;
+  background-color: var(--color-muted-brown);
+  padding: 1rem;
+  border-radius: 10px;
 }
 .balance-display {
-    background-color: var(--color-dark-olive);
-    padding: 1rem;
-    border-radius: 8px;
-    font-size: 1.5rem;
-    text-align: center;
-    margin-bottom: 1rem;
+  background-color: var(--color-dark-olive);
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 .btn {
-    padding: .7rem 1rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
+  padding: .7rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
 }
 .btn-primary {background-color: var(--color-cream); color: var(--color-darkest);}
 .btn-secondary {background-color: var(--color-dark-olive); color: var(--color-cream);}
 .btn-danger {background-color: var(--color-danger); color: var(--color-cream);}
-.repo-list {display:flex;flex-direction:column;gap:1rem;}
-.repo-item {
-    display:flex;align-items:center;justify-content:space-between;
-    background-color: var(--color-dark-olive);
-    padding:1rem;border-radius:8px;
+.repo-list, .group-list {display:flex;flex-direction:column;gap:1rem;}
+.repo-item, .group-item {
+  display:flex;align-items:center;justify-content:space-between;
+  background-color: var(--color-dark-olive);
+  padding:1rem;border-radius:8px;
 }
 .progress-bar-container {
-    width:100%;background-color:var(--color-darkest);
-    height:10px;border-radius:4px;overflow:hidden;
+  width:100%;background-color:var(--color-darkest);
+  height:10px;border-radius:4px;overflow:hidden;
 }
 .progress-bar {
-    background-color:var(--color-success);
-    height:100%;
+  background-color:var(--color-success);
+  height:100%;
 }
 footer {
-    background-color: var(--color-dark-olive);
-    color: var(--color-light-taupe);
-    text-align: center;
-    padding: .5rem;
+  background-color: var(--color-dark-olive);
+  color: var(--color-light-taupe);
+  text-align: center;
+  padding: .5rem;
 }
 </style>
 </head>
 <body>
 <header>
-  <div class="demo-mode-banner">DEMO MODE: Data not saved</div>
+  <div class="demo-mode-banner">DEMO MODE ENABLED ✅</div>
   <h1>Pledge-Box</h1>
   <p>Your secure space for goal-oriented and collaborative savings.</p>
 </header>
@@ -118,29 +119,38 @@ footer {
     <button class="btn btn-secondary" onclick="createRepo()">Create</button>
 
     <h3>My Repositories</h3>
-    <div id="repo-list" class="repo-list">
-      <p style="color:var(--color-light-taupe)">No repositories yet.</p>
-    </div>
+    <div id="repo-list" class="repo-list"></div>
   </div>
 
   <div class="section-card">
-    <h2>Group Savings (Demo Disabled)</h2>
-    <p style="color:var(--color-light-taupe)">Group features are unavailable in demo mode.</p>
+    <h2>Group Savings (Demo Mode)</h2>
+    <div class="balance-display">Total Groups: <span id="group-count">0</span></div>
+
+    <h3>Create Group</h3>
+    <label>Group Name:</label>
+    <input type="text" id="group-name" placeholder="e.g., Family Fund">
+    <label>Target Amount:</label>
+    <input type="number" id="group-target" placeholder="10000" min="1">
+    <button class="btn btn-primary" onclick="createGroup()">Create Group</button>
+
+    <h3>My Groups</h3>
+    <div id="group-list" class="group-list"></div>
   </div>
 </main>
 
-<footer>&copy; 2025 Pledge-Box. Demo build.</footer>
+<footer>&copy; 2025 Pledge-Box. Full demo mode enabled.</footer>
 
 <script>
 let userData = {
   mainBalance: 0,
-  repositories: []
+  repositories: [],
+  groups: []
 };
 
+// PERSONAL REPOS
 function updateBalance() {
   document.getElementById('main-balance').textContent = userData.mainBalance.toFixed(2);
 }
-
 function renderRepos() {
   const list = document.getElementById('repo-list');
   if (userData.repositories.length === 0) {
@@ -163,7 +173,6 @@ function renderRepos() {
       </div>`;
   }).join('');
 }
-
 function depositToMain() {
   const val = parseFloat(document.getElementById('deposit-amount').value);
   if (isNaN(val) || val <= 0) return alert("Enter valid amount");
@@ -171,7 +180,6 @@ function depositToMain() {
   updateBalance();
   document.getElementById('deposit-amount').value = '';
 }
-
 function createRepo() {
   const name = document.getElementById('repo-name').value.trim();
   const target = parseFloat(document.getElementById('repo-target').value);
@@ -183,7 +191,6 @@ function createRepo() {
   document.getElementById('repo-target').value = '';
   renderRepos();
 }
-
 function fundRepo(id) {
   const repo = userData.repositories.find(r => r.id === id);
   if (!repo) return;
@@ -195,7 +202,6 @@ function fundRepo(id) {
   updateBalance();
   renderRepos();
 }
-
 function deleteRepo(id) {
   const repo = userData.repositories.find(r => r.id === id);
   if (!repo) return;
@@ -206,8 +212,68 @@ function deleteRepo(id) {
   renderRepos();
 }
 
+// GROUP SAVINGS
+function renderGroups() {
+  document.getElementById('group-count').textContent = userData.groups.length;
+  const list = document.getElementById('group-list');
+  if (userData.groups.length === 0) {
+    list.innerHTML = '<p style="color:var(--color-light-taupe)">No groups yet.</p>';
+    return;
+  }
+  list.innerHTML = userData.groups.map(g => {
+    const pct = Math.min(100, (g.current / g.target) * 100);
+    return `
+      <div class="group-item">
+        <div style="flex:1">
+          <strong>👥 ${g.name}</strong><br>
+          <small>BDT ${g.current.toFixed(2)} / ${g.target.toFixed(2)} | Members: ${g.members.join(", ")}</small>
+          <div class="progress-bar-container"><div class="progress-bar" style="width:${pct}%"></div></div>
+        </div>
+        <div>
+          <button class="btn btn-secondary" onclick="fundGroup('${g.id}')">Fund</button>
+          <button class="btn btn-danger" onclick="deleteGroup('${g.id}')">Delete</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+function createGroup() {
+  const name = document.getElementById('group-name').value.trim();
+  const target = parseFloat(document.getElementById('group-target').value);
+  if (!name || isNaN(target) || target <= 0) return alert("Enter valid name and target");
+  const group = {
+    id: Math.random().toString(36).substring(2,8),
+    name, target, current: 0,
+    members: ["You"]
+  };
+  userData.groups.push(group);
+  document.getElementById('group-name').value = '';
+  document.getElementById('group-target').value = '';
+  renderGroups();
+}
+function fundGroup(id) {
+  const group = userData.groups.find(g => g.id === id);
+  if (!group) return;
+  const amount = parseFloat(prompt("Enter amount to contribute:"));
+  if (isNaN(amount) || amount <= 0) return alert("Invalid amount");
+  if (amount > userData.mainBalance) return alert("Not enough in main balance");
+  userData.mainBalance -= amount;
+  group.current += amount;
+  updateBalance();
+  renderGroups();
+}
+function deleteGroup(id) {
+  const group = userData.groups.find(g => g.id === id);
+  if (!group) return;
+  if (!confirm(`Delete ${group.name}?`)) return;
+  userData.mainBalance += group.current;
+  userData.groups = userData.groups.filter(g => g.id !== id);
+  updateBalance();
+  renderGroups();
+}
+
 updateBalance();
 renderRepos();
+renderGroups();
 </script>
 </body>
 </html>
