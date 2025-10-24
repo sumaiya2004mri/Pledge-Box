@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Financial Dashboard - Pure Palette</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- General Resets & Base Styles --- */
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #E9D9C7; /* Primary text color: Very Light Cream */
+            background-color: #20201A; /* Main background: Very Dark Gray/Black */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Full viewport height */
+        }
+
+        /* --- Color Variables for Easy Reference (CSS Best Practice) --- */
+        :root {
+            --color-darkest: #20201A;   /* Black / Background */
+            --color-muted-brown: #907B60; /* Muted Brown / Accent Background */
+            --color-light-taupe: #C1B6AE; /* Light Grayish Brown / Card Background */
+            --color-cream: #E9D9C7;     /* Very Light Cream / Primary Text */
+            --color-dark-olive: #474130; /* Dark Olive / Header & Footer */
+        }
+
+        /* --- Header Styling --- */
+        header {
+            background-color: var(--color-dark-olive); /* Header background: Dark Olive */
+            color: var(--color-cream); /* Header text: Very Light Cream */
+            padding: 1.5rem 0;
+            text-align: center;
+            border-bottom: 2px solid var(--color-muted-brown); /* Subtle border: Muted Brown */
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-cream);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            font-weight: 300;
+            margin-top: 0.5rem;
+            color: var(--color-light-taupe); /* Subtitle text: Light Taupe */
+        }
+
+        /* --- Main Content Area --- */
+        main {
+            flex-grow: 1; /* Allows main content to take available space */
+            padding: 2rem;
+            display: flex;
+            flex-wrap: wrap; /* Allows cards to wrap on smaller screens */
+            gap: 2rem; /* Space between cards */
+            justify-content: center; /* Center cards horizontally */
+            align-items: flex-start; /* Align cards to the top */
+        }
+
+        /* --- Card Styling (Private Goal Locker) --- */
+        .card {
+            background-color: var(--color-light-taupe); /* Card background: Light Taupe */
+            color: var(--color-darkest); /* Card text: Very Dark Gray */
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .card h2 {
+            color: var(--color-dark-olive); /* Card heading: Dark Olive */
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--color-muted-brown); /* Heading underline: Muted Brown */
+            padding-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: var(--color-darkest); /* Paragraph text: Darkest */
+            margin-bottom: 1rem;
+        }
+
+        .card .balance-display {
+            background-color: var(--color-dark-olive); /* Balance display background: Dark Olive */
+            color: var(--color-cream); /* Balance display text: Cream */
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .card .goal-status {
+            font-weight: 600;
+            color: var(--color-muted-brown); /* Goal status text: Muted Brown */
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        /* --- Button Styling --- */
+        .btn-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            flex-grow: 1; /* Buttons grow to fill space */
+        }
+
+        .btn-deposit {
+            background-color: var(--color-muted-brown); /* Deposit button: Muted Brown */
+            color: var(--color-cream); /* Deposit text: Cream */
+        }
+
+        .btn-deposit:hover {
+            background-color: #806b53; /* Slightly darker Muted Brown on hover */
+        }
+
+        .btn-withdraw {
+            background-color: var(--color-dark-olive); /* Withdraw button: Dark Olive */
+            color: var(--color-cream); /* Withdraw text: Cream */
+        }
+
+        .btn-withdraw:hover {
+            background-color: #3d382b; /* Slightly darker Dark Olive on hover */
+        }
+
+        .btn-disabled {
+            background-color: #7a736a; /* Desaturated Light Taupe for disabled */
+            color: #20201A; /* Darkest for disabled text */
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* --- Group Fund Section --- */
+        .group-card {
+            background-color: var(--color-muted-brown); /* Group card background: Muted Brown */
+            color: var(--color-cream); /* Group card text: Cream */
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        .group-card h2 {
+            color: var(--color-cream); /* Group card heading: Cream */
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--color-light-taupe); /* Heading underline: Light Taupe */
+            padding-bottom: 0.5rem;
+        }
+
+        .group-info {
+            background-color: var(--color-darkest); /* Group info background: Darkest */
+            color: var(--color-light-taupe); /* Group info text: Light Taupe */
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .group-info strong {
+            color: var(--color-cream); /* Strong text in group info: Cream */
+        }
+
+        /* --- Footer Styling --- */
+        footer {
+            background-color: var(--color-dark-olive); /* Footer background: Dark Olive */
+            color: var(--color-light-taupe); /* Footer text: Light Taupe */
+            text-align: center;
+            padding: 1.5rem 0;
+            font-size: 0.9rem;
+            margin-top: auto; /* Pushes footer to the bottom */
+            border-top: 2px solid var(--color-muted-brown); /* Subtle border: Muted Brown */
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Digital Financial Dashboard</h1>
+        <p>Your secure space for goals and collaborative funds.</p>
+    </header>
+
+    <main>
+        <!-- Card 1: Private Goal Locker --><div class="card">
+            <h2>Private Goal Locker</h2>
+            <p><strong>Your Personal Savings Goal:</strong> Achieving financial milestones, one deposit at a time.</p>
+            <div class="balance-display">
+                Current Balance: <span style="color: #6ee7b7;">BDT 15,250</span> / Goal: BDT 20,000
+            </div>
+            <p class="goal-status">Goal is currently 76% achieved. Keep going!</p>
+            <div class="btn-container">
+                <button class="btn btn-deposit">Deposit More</button>
+                <button class="btn btn-withdraw btn-disabled" disabled>Withdraw (Goal Not Met)</button>
+            </div>
+        </div>
+
+        <!-- Card 2: Group Multi-Sig Fund --><div class="group-card">
+            <h2>Team Travel Fund</h2>
+            <p><strong>Group Mission:</strong> "To collectively save for an unforgettable adventure trip to the Sundarbans by next winter. Every contribution brings us closer to shared memories."</p>
+            <div class="group-info">
+                <strong>Current Group Balance:</strong> <span style="color: #E9D9C7;">BDT 35,000</span><br>
+                Members: 7 | Quorum Required for Withdrawal: 4
+            </div>
+            <p style="color: var(--color-cream);">Awaiting approval for BDT 5,000 withdrawal by User-ABC. 2/4 approvals received.</p>
+            <div class="btn-container">
+                <button class="btn btn-deposit">Deposit to Group</button>
+                <button class="btn btn-withdraw">Approve Withdrawal</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Digital Locker. All rights reserved. Designed with your palette.</p>
+    </footer>
+
+</body>
+</html>
