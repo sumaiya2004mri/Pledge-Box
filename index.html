@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pledge-Box: Full Demo Dashboard</title>
+<title>Pledge-Box: Refined Demo Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --color-darkest: #20201A;
-  --color-muted-brown: #907B60;
-  --color-light-taupe: #C1B6AE;
-  --color-cream: #E9D9C7;
-  --color-dark-olive: #474130;
-  --color-success: #4CAF50;
-  --color-danger: #D32F2F;
-  --color-warning: #FFC107;
+  --color-darkest: #1B1B16;
+  --color-muted-brown: #7A6851;
+  --color-light-taupe: #B5A494;
+  --color-cream: #E6D3B5;
+  --color-dark-olive: #3E3A2C;
+  --color-success: #6CB57E;
+  --color-danger: #C74E3E;
+  --color-warning: #C7A54E;
 }
 body {
   margin: 0;
@@ -44,32 +44,69 @@ main {
 }
 @media (max-width:900px){ main {grid-template-columns:1fr;} }
 .section-card {
-  background-color: var(--color-muted-brown);
-  padding: 1rem;
+  background-color: var(--color-dark-olive);
+  padding: 1.5rem;
   border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 .balance-display {
-  background-color: var(--color-dark-olive);
+  background-color: var(--color-muted-brown);
   padding: 1rem;
   border-radius: 8px;
   font-size: 1.5rem;
   text-align: center;
   margin-bottom: 1rem;
+  color: var(--color-cream);
+}
+input, select {
+  width: 100%;
+  padding: 0.6rem;
+  margin: 0.4rem 0 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-light-taupe);
+  background-color: var(--color-darkest);
+  color: var(--color-cream);
+  font-family: inherit;
+}
+input::placeholder {
+  color: var(--color-light-taupe);
 }
 .btn {
   padding: .7rem 1rem;
   border: none;
   border-radius: 6px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
-.btn-primary {background-color: var(--color-cream); color: var(--color-darkest);}
-.btn-secondary {background-color: var(--color-dark-olive); color: var(--color-cream);}
-.btn-danger {background-color: var(--color-danger); color: var(--color-cream);}
-.repo-list, .group-list {display:flex;flex-direction:column;gap:1rem;}
+.btn-primary {
+  background-color: var(--color-success);
+  color: var(--color-darkest);
+}
+.btn-primary:hover {
+  background-color: #5aa76f;
+}
+.btn-secondary {
+  background-color: var(--color-light-taupe);
+  color: var(--color-darkest);
+}
+.btn-secondary:hover {
+  background-color: var(--color-muted-brown);
+  color: var(--color-cream);
+}
+.btn-danger {
+  background-color: var(--color-danger);
+  color: var(--color-cream);
+}
+.btn-danger:hover {
+  background-color: #b54135;
+}
+.repo-list, .group-list {
+  display:flex;flex-direction:column;gap:1rem;
+}
 .repo-item, .group-item {
   display:flex;align-items:center;justify-content:space-between;
-  background-color: var(--color-dark-olive);
+  background-color: var(--color-muted-brown);
   padding:1rem;border-radius:8px;
 }
 .progress-bar-container {
@@ -277,3 +314,4 @@ renderGroups();
 </script>
 </body>
 </html>
+
