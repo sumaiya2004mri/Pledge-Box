@@ -58,6 +58,7 @@
             font-size: 0.8rem;
             margin-top: 0.5rem;
             color: var(--color-cream);
+            font-weight: 600;
         }
         
         #user-id-display {
@@ -74,6 +75,17 @@
             margin-right: auto;
             word-break: break-all;
         }
+        
+        /* Demo Mode Specific Styling */
+        .demo-mode-banner {
+            background-color: var(--color-danger);
+            color: var(--color-cream);
+            padding: 0.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
 
         /* --- Main Content Area & Layout --- */
         main {
@@ -274,14 +286,25 @@
         #status-message.show {
             transform: translateY(0);
         }
+        
+        footer {
+            background-color: var(--color-dark-olive);
+            color: var(--color-light-taupe);
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
 
     <header>
+        <div id="demo-mode-banner" class="demo-mode-banner" style="display:none;">
+            DEMO MODE: Data will NOT be saved. Use in Canvas for persistence.
+        </div>
         <h1>Pledge-Box</h1>
         <p>Your secure space for goal-oriented and collaborative savings.</p>
-        <div id="user-info">Initializing Firebase...</div>
+        <div id="user-info">Initializing...</div>
         <span id="user-id-display"></span>
     </header>
 
@@ -317,8 +340,7 @@
             <!-- Personal Repositories List -->
             <h3 style="margin-top: 2rem; color: var(--color-cream);">My Repositories</h3>
             <div id="personal-repo-list" class="repo-list">
-                <!-- Repositories will be dynamically added here -->
-                <p style="color: var(--color-light-taupe);">Awaiting authentication...</p>
+                <p style="color: var(--color-light-taupe);">Setting up your locker...</p>
             </div>
         </div>
 
@@ -340,8 +362,7 @@
             <!-- Group Repositories List -->
             <h3 style="margin-top: 2rem; color: var(--color-cream);">My Groups</h3>
             <div id="group-repo-list" class="repo-list">
-                <!-- Groups will be dynamically added here -->
-                <p style="color: var(--color-light-taupe);">Awaiting authentication...</p>
+                <p style="color: var(--color-light-taupe);">No groups loaded.</p>
             </div>
         </div>
     </main>
@@ -349,7 +370,7 @@
     <div id="status-message"></div>
 
     <footer>
-        <p>&copy; 2023 Pledge-Box. Designed with the Pure Palette. User data secured with Firebase.</p>
+        <p>&copy; 2023 Pledge-Box. Designed with the Pure Palette.</p>
     </footer>
 
     <!-- Firebase SDK Imports -->
@@ -360,17 +381,31 @@
 
         // --- 1. GLOBAL STATE & CONFIGURATION ---
         
-        // Canvas Global Variables (with robust fallbacks for external testing)
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const canvasFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const canvasAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // Check for Canvas environment globals
+        const isCanvasEnvironment = typeof __firebase_config !== 'undefined' && __firebase_config !== "";
+        let isDemoMode = !isCanvasEnvironment;
+        
+        const DUMMY_FIREBASE_CONFIG = {
+            apiKey: "DUMMY_API_KEY_FOR_DEMO",
+            authDomain: "dummy-project.firebaseapp.com",
+            projectId: "dummy-project-12345",
+            storageBucket: "dummy-project.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef1234567890abcdef"
+        };
+        
+        // Set configurations based on environment
+        const appId = isCanvasEnvironment ? __app_id : 'default-demo-app-id';
+        const firebaseConfig = isCanvasEnvironment ? JSON.parse(__firebase_config) : DUMMY_FIREBASE_CONFIG;
+        const canvasAuthToken = isCanvasEnvironment ? __initial_auth_token : null;
+
 
         let db, auth, userId = null;
         let userDataListener = null;
         let groupDataListener = null;
 
         // Global data holders
-        window.currentUserData = { mainBalance: 0, repositories: [], groups: [] };
+        window.currentUserData = { mainBalance: 0.00, repositories: [], groups: [] };
         window.userGroupReferences = []; 
         
         // Icons for personalization
@@ -393,6 +428,12 @@
         // --- 2. FIREBASE INITIALIZATION AND AUTHENTICATION ---
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Display demo mode warning if necessary
+            if (isDemoMode) {
+                 document.getElementById('demo-mode-banner').style.display = 'block';
+                 document.getElementById('user-info').textContent = "Demo Mode Active. Data not persisted.";
+            }
+
             // Populate the icon selector
             const iconSelect = document.getElementById('repo-icon-select');
             Object.keys(ICON_MAP).forEach(icon => {
@@ -402,26 +443,28 @@
                 iconSelect.appendChild(option);
             });
             
-            // Check if Firebase config is available
-            if (Object.keys(canvasFirebaseConfig).length === 0) {
-                document.getElementById('user-info').textContent = "ERROR: Firebase Config Missing.";
-                showStatus("Firebase Configuration is missing. App will only work in the Canvas environment.", 'danger');
-                return;
-            }
-
-            const app = initializeApp(canvasFirebaseConfig);
+            // Initialize Firebase services
+            const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
             
-            // Start Authentication Listener
+            // Start Authentication Logic
+            if (isDemoMode) {
+                // In demo mode, simulate successful sign-in
+                userId = "DEMO_USER_" + Math.random().toString(36).substring(2, 8).toUpperCase();
+                document.getElementById('user-id-display').textContent = `DEMO ID: ${userId}`;
+                // Manually start listeners using mocked initial data
+                startUserListeners(true); 
+                return;
+            }
+
+            // Canvas Environment: Use real Auth flow
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     userId = user.uid;
                     document.getElementById('user-info').textContent = `User Authenticated.`;
                     document.getElementById('user-id-display').textContent = `ID: ${userId}`;
-                    
-                    // Start listening to the user's private data
-                    startUserListeners();
+                    startUserListeners(false);
                 } else {
                     document.getElementById('user-info').textContent = "Attempting Sign-In...";
                     try {
@@ -444,17 +487,29 @@
         const getUserDocRef = (uid) => doc(db, 'artifacts', appId, 'users', uid, 'userDoc', 'data');
         const getGroupDocRef = (accessCode) => doc(db, 'artifacts', appId, 'public', 'data', 'groups', accessCode);
 
-        function startUserListeners() {
+        function startUserListeners(isDemo) {
+            const listEl = document.getElementById('personal-repo-list');
+            
+            if (isDemo) {
+                // Mock initial data for demo mode
+                window.currentUserData.mainBalance = 500.00;
+                window.currentUserData.repositories = [{
+                    id: 'demo-1', name: 'Demo Trip Fund', target: 2000.00, current: 750.00, icon: '✈️'
+                }];
+                window.currentUserData.groups = [];
+                renderMainBalance();
+                renderPersonalRepositories();
+                listEl.innerHTML = '<p style="color: var(--color-light-taupe);">Demo data loaded. Changes are temporary.</p>';
+                return;
+            }
+            
             if (!db || !userId) return;
             if (userDataListener) userDataListener(); // Detach previous listener
 
             // 1. Listen to Private User Data
             userDataListener = onSnapshot(getUserDocRef(userId), (doc) => {
-                const listEl = document.getElementById('personal-repo-list');
-                
                 if (doc.exists()) {
                     window.currentUserData = doc.data();
-                    // Ensure structure is initialized
                     if (!window.currentUserData.mainBalance) window.currentUserData.mainBalance = 0;
                     if (!window.currentUserData.repositories) window.currentUserData.repositories = [];
                     if (!window.currentUserData.groups) window.currentUserData.groups = [];
@@ -462,7 +517,6 @@
                     renderMainBalance();
                     renderPersonalRepositories();
                     
-                    // Check for group membership changes and start group listeners
                     const currentGroups = window.currentUserData.groups || [];
                     if (JSON.stringify(currentGroups.sort()) !== JSON.stringify(window.userGroupReferences.sort())) {
                          window.userGroupReferences = currentGroups;
@@ -484,8 +538,12 @@
         }
         
         function startGroupListeners() {
+            if (isDemoMode) {
+                 document.getElementById('group-repo-list').innerHTML = '<p style="color: var(--color-light-taupe);">Group features are disabled in Demo Mode.</p>';
+                 return;
+            }
             if (!db) return;
-            if (groupDataListener) groupDataListener(); // Detach previous listener
+            if (groupDataListener) groupDataListener(); 
             
             const groupListEl = document.getElementById('group-repo-list');
             const groupRefs = window.userGroupReferences.map(code => getGroupDocRef(code));
@@ -567,12 +625,33 @@
 
         // --- 5. CORE FUNCTIONALITY (TRANSACTIONS) ---
         
+        function checkDemoMode() {
+            if (isDemoMode) {
+                showStatus("ACTION BLOCKED: Persistence is disabled in Demo Mode.", 'danger');
+                // Allow UI changes to happen locally in Demo Mode for better user feedback
+                return true; 
+            }
+            if (!userId) { 
+                showStatus("Please wait for authentication to complete.", 'danger'); 
+                return false; 
+            }
+            return false;
+        }
+
         async function depositToMain() {
-            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+            if (checkDemoMode()) {
+                const amount = parseFloat(document.getElementById('deposit-amount').value);
+                if (!isNaN(amount) && amount > 0) {
+                    window.currentUserData.mainBalance = (window.currentUserData.mainBalance || 0) + amount;
+                    document.getElementById('deposit-amount').value = '';
+                    renderMainBalance();
+                }
+                return;
+            }
 
             const amountInput = document.getElementById('deposit-amount');
             const amount = parseFloat(amountInput.value);
-            amountInput.value = ''; // Clear input
+            amountInput.value = '';
 
             if (isNaN(amount) || amount <= 0) {
                 showStatus("Please enter a valid deposit amount.", 'danger');
@@ -593,7 +672,19 @@
         }
         
         async function createPersonalRepository() {
-            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+            if (checkDemoMode()) {
+                const name = document.getElementById('repo-name').value.trim();
+                const target = parseFloat(document.getElementById('repo-target').value);
+                const icon = document.getElementById('repo-icon-select').value;
+                if (!name || isNaN(target) || target <= 0) return;
+                
+                const newRepo = { id: crypto.randomUUID(), name, target, current: 0.00, icon };
+                window.currentUserData.repositories.push(newRepo);
+                document.getElementById('repo-name').value = '';
+                document.getElementById('repo-target').value = '';
+                renderPersonalRepositories();
+                return;
+            }
 
             const name = document.getElementById('repo-name').value.trim();
             const target = parseFloat(document.getElementById('repo-target').value);
@@ -613,7 +704,6 @@
             };
 
             try {
-                // Use arrayUnion for robust addition to the list
                 await setDoc(getUserDocRef(userId), { 
                     repositories: arrayUnion(newRepo) 
                 }, { merge: true });
@@ -625,13 +715,26 @@
         }
         
         async function transferToRepo(repoId) {
-            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
-
             const amountStr = prompt("Enter amount to transfer from Main Balance:");
             if (amountStr === null) return;
             const amount = parseFloat(amountStr);
             
             if (isNaN(amount) || amount <= 0) { showStatus("Invalid amount entered.", 'danger'); return; }
+
+            if (checkDemoMode()) {
+                 const currentBalance = window.currentUserData.mainBalance || 0;
+                 if (currentBalance < amount) { showStatus("Insufficient funds in Demo Main Balance.", 'danger'); return; }
+
+                 const repoIndex = window.currentUserData.repositories.findIndex(r => r.id === repoId);
+                 if (repoIndex === -1) return;
+                 
+                 window.currentUserData.mainBalance -= amount;
+                 window.currentUserData.repositories[repoIndex].current += amount;
+                 renderMainBalance();
+                 renderPersonalRepositories();
+                 return;
+            }
+
 
             try {
                 await runTransaction(db, async (transaction) => {
@@ -649,7 +752,6 @@
                          throw new Error("Repository not found.");
                     }
                     
-                    // Update Repo and Main Balance
                     repositories[repoIndex].current += amount;
                     transaction.update(getUserDocRef(userId), { 
                         mainBalance: currentBalance - amount,
@@ -664,10 +766,21 @@
         }
         
         async function deleteRepo(repoId, repoName) {
-            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
-
             const confirmDelete = window.confirm(`Are you sure you want to LIQUIDATE "${repoName}"? All saved funds will return to your Main Balance.`);
             if (!confirmDelete) return;
+
+            if (checkDemoMode()) {
+                const repoIndex = window.currentUserData.repositories.findIndex(r => r.id === repoId);
+                if (repoIndex === -1) return;
+                
+                const refundAmount = window.currentUserData.repositories[repoIndex].current;
+                window.currentUserData.mainBalance += refundAmount;
+                window.currentUserData.repositories.splice(repoIndex, 1);
+                renderMainBalance();
+                renderPersonalRepositories();
+                showStatus(`Repository "${repoName}" liquidated (Demo). BDT ${refundAmount.toFixed(2)} refunded.`, 'success');
+                return;
+            }
 
             try {
                 let refundAmount = 0;
@@ -684,7 +797,6 @@
                     refundAmount = repo.current;
                     const repoToRemove = { id: repo.id, name: repo.name, target: repo.target, current: repo.current, icon: repo.icon };
                     
-                    // Atomically remove the old object and update balance
                     transaction.update(getUserDocRef(userId), { 
                         mainBalance: data.mainBalance + refundAmount,
                         repositories: arrayRemove(repoToRemove)
@@ -700,7 +812,7 @@
         // --- 6. GROUP FUNCTIONALITY ---
 
         async function createGroup() {
-            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+            if (checkDemoMode()) return;
 
             const codeInput = document.getElementById('group-code');
             const newCode = codeInput.value.trim().toUpperCase();
@@ -726,7 +838,6 @@
                         throw new Error("A group with this code already exists.");
                     }
 
-                    // Create the new group document (Public Data)
                     transaction.set(groupRef, {
                         accessCode: newCode,
                         groupName: newCode, 
@@ -737,7 +848,6 @@
                         }
                     });
                     
-                    // Add the group reference to the creator's private document
                     transaction.update(getUserDocRef(userId), { 
                         groups: arrayUnion(newCode)
                     });
@@ -750,7 +860,7 @@
         }
 
         async function joinGroup() {
-            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+            if (checkDemoMode()) return;
 
             const codeInput = document.getElementById('group-code');
             const code = codeInput.value.trim().toUpperCase();
@@ -772,12 +882,10 @@
                     
                     const groupData = groupDoc.data();
                     
-                    // Check if already a member
                     if (groupData.members && groupData.members[userId]) {
                         throw new Error("You are already a member of this group.");
                     }
 
-                    // Add user to the group's member list (Public Data)
                     const updatedMembers = {
                         ...groupData.members,
                         [userId]: { contribution: 0.00, isAdmin: false }
@@ -785,7 +893,6 @@
 
                     transaction.update(groupRef, { members: updatedMembers });
                     
-                    // Add the group reference to the user's private document
                     transaction.update(getUserDocRef(userId), { 
                         groups: arrayUnion(code)
                     });
@@ -798,7 +905,8 @@
         }
         
         async function depositToGroup(accessCode) {
-            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+            if (checkDemoMode()) return;
+            // No demo logic for groups since they rely on public collaboration.
 
             const amountStr = prompt(`Enter amount to transfer from Main Balance to group ${accessCode}:`);
             if (amountStr === null) return;
@@ -846,7 +954,7 @@
         }
         
         async function leaveGroup(accessCode, isAdmin) {
-            if (!userId) { showStatus("Please wait for authentication to complete.", 'danger'); return; }
+            if (checkDemoMode()) return;
 
             if (isAdmin) {
                 const confirmClose = window.confirm("WARNING: As admin, leaving will CLOSE the group! All funds will be returned to contributors. Proceed?");
@@ -864,7 +972,6 @@
                         const groupDoc = await transaction.get(getGroupDocRef(accessCode));
                         const groupData = groupDoc.data();
                         
-                        // Create new members object without the current user
                         const updatedMembers = Object.keys(groupData.members).reduce((acc, key) => {
                             if (key !== userId) {
                                 acc[key] = groupData.members[key];
@@ -895,26 +1002,21 @@
                     if (!groupDoc.exists()) return;
 
                     const groupData = groupDoc.data();
-                    const totalBalance = groupData.currentBalance;
                     const members = groupData.members;
-
-                    const totalContribution = Object.values(members).reduce((sum, m) => sum + m.contribution, 0);
 
                     for (const memberId in members) {
                         const contribution = members[memberId].contribution;
                         
-                        // Use the exact contribution amount for refund, not percentage, for simplicity and fairness
                         const userRefund = contribution; 
                         
                         const memberUserDocRef = getUserDocRef(memberId);
                         const memberUserDoc = await transaction.get(memberUserDocRef);
                         const memberUserData = memberUserDoc.data();
 
-                        // A. Refund to Member's Main Balance (Private Data)
                         if (memberUserDoc.exists()) {
                             transaction.update(memberUserDocRef, {
                                 mainBalance: (memberUserData.mainBalance || 0) + userRefund,
-                                groups: arrayRemove(accessCode) // B. Remove group reference
+                                groups: arrayRemove(accessCode)
                             });
                         }
                     }
