@@ -3,239 +3,869 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Financial Dashboard - Pure Palette</title>
+    <title>Pledge-Box: Digital Financial Dashboard</title>
+    <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* --- General Resets & Base Styles --- */
+        /* --- Color Variables & General Resets --- */
+        :root {
+            --color-darkest: #20201A;      /* Black / Background */
+            --color-muted-brown: #907B60;  /* Muted Brown / Accent Background */
+            --color-light-taupe: #C1B6AE;  /* Light Grayish Brown / Card Background */
+            --color-cream: #E9D9C7;        /* Very Light Cream / Primary Text */
+            --color-dark-olive: #474130;   /* Dark Olive / Header & Footer */
+            --color-success: #4CAF50;
+            --color-danger: #D32F2F;
+        }
+
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
-            color: #E9D9C7; /* Primary text color: Very Light Cream */
-            background-color: #20201A; /* Main background: Very Dark Gray/Black */
+            color: var(--color-cream);
+            background-color: var(--color-darkest);
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* Full viewport height */
-        }
-
-        /* --- Color Variables for Easy Reference (CSS Best Practice) --- */
-        :root {
-            --color-darkest: #20201A;   /* Black / Background */
-            --color-muted-brown: #907B60; /* Muted Brown / Accent Background */
-            --color-light-taupe: #C1B6AE; /* Light Grayish Brown / Card Background */
-            --color-cream: #E9D9C7;     /* Very Light Cream / Primary Text */
-            --color-dark-olive: #474130; /* Dark Olive / Header & Footer */
+            min-height: 100vh;
         }
 
         /* --- Header Styling --- */
         header {
-            background-color: var(--color-dark-olive); /* Header background: Dark Olive */
-            color: var(--color-cream); /* Header text: Very Light Cream */
+            background-color: var(--color-dark-olive);
+            color: var(--color-cream);
             padding: 1.5rem 0;
             text-align: center;
-            border-bottom: 2px solid var(--color-muted-brown); /* Subtle border: Muted Brown */
+            border-bottom: 2px solid var(--color-muted-brown);
         }
 
         header h1 {
             margin: 0;
             font-size: 2.5rem;
             font-weight: 700;
-            color: var(--color-cream);
         }
 
         header p {
             font-size: 1.1rem;
             font-weight: 300;
             margin-top: 0.5rem;
-            color: var(--color-light-taupe); /* Subtitle text: Light Taupe */
+            color: var(--color-light-taupe);
         }
 
-        /* --- Main Content Area --- */
+        #user-info {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            color: var(--color-cream);
+        }
+
+        /* --- Main Content Area & Layout --- */
         main {
-            flex-grow: 1; /* Allows main content to take available space */
+            flex-grow: 1;
             padding: 2rem;
-            display: flex;
-            flex-wrap: wrap; /* Allows cards to wrap on smaller screens */
-            gap: 2rem; /* Space between cards */
-            justify-content: center; /* Center cards horizontally */
-            align-items: flex-start; /* Align cards to the top */
-        }
-
-        /* --- Card Styling (Private Goal Locker) --- */
-        .card {
-            background-color: var(--color-light-taupe); /* Card background: Light Taupe */
-            color: var(--color-darkest); /* Card text: Very Dark Gray */
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+            display: grid;
+            grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr); /* Two columns for large screens */
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
             width: 100%;
-            max-width: 400px;
-            box-sizing: border-box; /* Include padding in width */
         }
 
-        .card h2 {
-            color: var(--color-dark-olive); /* Card heading: Dark Olive */
-            font-size: 1.8rem;
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr; /* Single column on smaller screens */
+                padding: 1rem;
+            }
+        }
+
+        /* --- Card Styling (General) --- */
+        .section-card {
+            background-color: var(--color-muted-brown);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .section-card h2 {
+            color: var(--color-cream);
+            font-size: 2rem;
             margin-top: 0;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--color-muted-brown); /* Heading underline: Muted Brown */
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--color-light-taupe);
             padding-bottom: 0.5rem;
         }
 
-        .card p {
-            color: var(--color-darkest); /* Paragraph text: Darkest */
-            margin-bottom: 1rem;
-        }
-
-        .card .balance-display {
-            background-color: var(--color-dark-olive); /* Balance display background: Dark Olive */
-            color: var(--color-cream); /* Balance display text: Cream */
-            padding: 1rem;
-            border-radius: 4px;
+        .balance-display {
+            background-color: var(--color-dark-olive);
+            color: var(--color-cream);
+            padding: 1.5rem;
+            border-radius: 8px;
             margin-bottom: 1.5rem;
             text-align: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .card .goal-status {
-            font-weight: 600;
-            color: var(--color-muted-brown); /* Goal status text: Muted Brown */
-            text-align: center;
-            margin-bottom: 1rem;
+            font-size: 2rem;
+            font-weight: 700;
         }
 
         /* --- Button Styling --- */
         .btn-container {
             display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.7rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: opacity 0.3s, transform 0.1s;
+            flex-grow: 1;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background-color: var(--color-cream);
+            color: var(--color-darkest);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background-color: var(--color-dark-olive);
+            color: var(--color-cream);
+        }
+
+        .btn-secondary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background-color: var(--color-danger);
+            color: var(--color-cream);
+        }
+
+        /* --- Input & Form Styling --- */
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 0.7rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--color-light-taupe);
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: var(--color-darkest);
+            color: var(--color-cream);
+        }
+
+        label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: 600;
+            color: var(--color-cream);
+        }
+
+        /* --- Repository List Styling --- */
+        .repo-list {
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
             margin-top: 1.5rem;
         }
 
-        .btn {
-            display: inline-block;
-            padding: 0.8rem 1.2rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            text-align: center;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-            flex-grow: 1; /* Buttons grow to fill space */
-        }
-
-        .btn-deposit {
-            background-color: var(--color-muted-brown); /* Deposit button: Muted Brown */
-            color: var(--color-cream); /* Deposit text: Cream */
-        }
-
-        .btn-deposit:hover {
-            background-color: #806b53; /* Slightly darker Muted Brown on hover */
-        }
-
-        .btn-withdraw {
-            background-color: var(--color-dark-olive); /* Withdraw button: Dark Olive */
-            color: var(--color-cream); /* Withdraw text: Cream */
-        }
-
-        .btn-withdraw:hover {
-            background-color: #3d382b; /* Slightly darker Dark Olive on hover */
-        }
-
-        .btn-disabled {
-            background-color: #7a736a; /* Desaturated Light Taupe for disabled */
-            color: #20201A; /* Darkest for disabled text */
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        /* --- Group Fund Section --- */
-        .group-card {
-            background-color: var(--color-muted-brown); /* Group card background: Muted Brown */
-            color: var(--color-cream); /* Group card text: Cream */
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
-        }
-
-        .group-card h2 {
-            color: var(--color-cream); /* Group card heading: Cream */
-            font-size: 1.8rem;
-            margin-top: 0;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--color-light-taupe); /* Heading underline: Light Taupe */
-            padding-bottom: 0.5rem;
-        }
-
-        .group-info {
-            background-color: var(--color-darkest); /* Group info background: Darkest */
-            color: var(--color-light-taupe); /* Group info text: Light Taupe */
+        .repo-item, .group-item {
+            background-color: var(--color-dark-olive);
             padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--color-cream);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        .group-info strong {
-            color: var(--color-cream); /* Strong text in group info: Cream */
+        .repo-details {
+            flex-grow: 1;
         }
 
-        /* --- Footer Styling --- */
-        footer {
-            background-color: var(--color-dark-olive); /* Footer background: Dark Olive */
-            color: var(--color-light-taupe); /* Footer text: Light Taupe */
+        .repo-details h4 {
+            margin: 0 0 0.2rem 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-light-taupe);
+        }
+
+        .repo-details p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--color-cream);
+        }
+
+        .repo-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .repo-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Progress Bar Styling */
+        .progress-bar-container {
+            width: 100%;
+            background-color: var(--color-darkest);
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--color-success);
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* Group Specific Styling */
+        .group-item {
+            background-color: var(--color-muted-brown);
+            border: 2px solid var(--color-cream);
+        }
+
+        /* Loading and Messaging */
+        #status-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--color-success);
+            color: var(--color-darkest);
             text-align: center;
-            padding: 1.5rem 0;
-            font-size: 0.9rem;
-            margin-top: auto; /* Pushes footer to the bottom */
-            border-top: 2px solid var(--color-muted-brown); /* Subtle border: Muted Brown */
+            padding: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease-in-out;
+            transform: translateY(-100%);
+            z-index: 1000;
+        }
+
+        #status-message.show {
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Digital Financial Dashboard</h1>
-        <p>Your secure space for goals and collaborative funds.</p>
+        <h1>Pledge-Box</h1>
+        <p>Your secure space for goal-oriented and collaborative savings.</p>
+        <div id="user-info">Authenticating...</div>
     </header>
 
     <main>
-        <!-- Card 1: Private Goal Locker --><div class="card">
-            <h2>Private Goal Locker</h2>
-            <p><strong>Your Personal Savings Goal:</strong> Achieving financial milestones, one deposit at a time.</p>
+        <!-- PRIVATE LOCKER SECTION -->
+        <div class="section-card" id="private-locker-section">
+            <h2>Personal Goal Locker</h2>
+            
+            <!-- Main Balance Display -->
             <div class="balance-display">
-                Current Balance: <span style="color: #6ee7b7;">BDT 15,250</span> / Goal: BDT 20,000
+                Main Balance: BDT <span id="main-balance">0.00</span>
             </div>
-            <p class="goal-status">Goal is currently 76% achieved. Keep going!</p>
-            <div class="btn-container">
-                <button class="btn btn-deposit">Deposit More</button>
-                <button class="btn btn-withdraw btn-disabled" disabled>Withdraw (Goal Not Met)</button>
+            
+            <!-- Deposit Form -->
+            <div style="background-color: var(--color-dark-olive); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                <label for="deposit-amount">Deposit to Main Balance (BDT):</label>
+                <input type="number" id="deposit-amount" placeholder="Enter amount" min="1" required>
+                <button class="btn btn-primary" onclick="depositToMain()">Deposit</button>
+            </div>
+
+            <!-- Create Repository Form -->
+            <h3>Create New Repository</h3>
+            <div style="background-color: var(--color-light-taupe); color: var(--color-darkest); padding: 1rem; border-radius: 6px;">
+                <label for="repo-name">Repository Name:</label>
+                <input type="text" id="repo-name" placeholder="e.g., New Phone, India Trip">
+                <label for="repo-target">Target Amount (Fixed):</label>
+                <input type="number" id="repo-target" placeholder="BDT 5000" min="1">
+                <label for="repo-icon-select">Choose Icon:</label>
+                <select id="repo-icon-select"></select>
+                <button class="btn btn-secondary" style="background-color: var(--color-dark-olive);" onclick="createPersonalRepository()">Create Repository</button>
+            </div>
+
+            <!-- Personal Repositories List -->
+            <h3 style="margin-top: 2rem; color: var(--color-cream);">My Repositories</h3>
+            <div id="personal-repo-list" class="repo-list">
+                <!-- Repositories will be dynamically added here -->
+                <p style="color: var(--color-light-taupe);">No personal repositories yet.</p>
             </div>
         </div>
 
-        <!-- Card 2: Group Multi-Sig Fund --><div class="group-card">
-            <h2>Team Travel Fund</h2>
-            <p><strong>Group Mission:</strong> "To collectively save for an unforgettable adventure trip to the Sundarbans by next winter. Every contribution brings us closer to shared memories."</p>
-            <div class="group-info">
-                <strong>Current Group Balance:</strong> <span style="color: #E9D9C7;">BDT 35,000</span><br>
-                Members: 7 | Quorum Required for Withdrawal: 4
+        <!-- GROUP & ACCOUNT SECTION -->
+        <div class="section-card" id="group-section">
+            <h2>Group Savings & Account</h2>
+            
+            <!-- Group Actions -->
+            <div style="background-color: var(--color-dark-olive); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                <h3>Join or Create Group</h3>
+                <label for="group-code">Access Code:</label>
+                <input type="text" id="group-code" placeholder="Enter 4-letter Code or New Name">
+                <div class="btn-container">
+                    <button class="btn btn-primary" onclick="joinGroup()">Join Existing</button>
+                    <button class="btn btn-secondary" onclick="createGroup()">Create New</button>
+                </div>
             </div>
-            <p style="color: var(--color-cream);">Awaiting approval for BDT 5,000 withdrawal by User-ABC. 2/4 approvals received.</p>
-            <div class="btn-container">
-                <button class="btn btn-deposit">Deposit to Group</button>
-                <button class="btn btn-withdraw">Approve Withdrawal</button>
+
+            <!-- Group Repositories List -->
+            <h3 style="margin-top: 2rem; color: var(--color-cream);">My Groups</h3>
+            <div id="group-repo-list" class="repo-list">
+                <!-- Groups will be dynamically added here -->
+                <p style="color: var(--color-light-taupe);">You haven't joined any groups.</p>
             </div>
         </div>
     </main>
 
+    <div id="status-message"></div>
+
     <footer>
-        <p>&copy; 2023 Digital Locker. All rights reserved. Designed with your palette.</p>
+        <p>&copy; 2023 Pledge-Box. Designed with the Pure Palette. User data secured with Firebase.</p>
     </footer>
 
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, collection, setDoc, runTransaction, arrayRemove, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Variables for Canvas Environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth, userId = null;
+        let userDataListener, groupDataListener = null;
+        window.currentUserData = { mainBalance: 0, repositories: [] };
+        window.userGroupReferences = []; // Array of group access codes the user is a member of
+        
+        // Expose functions globally for HTML buttons
+        window.depositToMain = depositToMain;
+        window.createPersonalRepository = createPersonalRepository;
+        window.transferToRepo = transferToRepo;
+        window.deleteRepo = deleteRepo;
+        window.createGroup = createGroup;
+        window.joinGroup = joinGroup;
+        window.depositToGroup = depositToGroup;
+        window.leaveGroup = leaveGroup;
+
+        // --- 1. FIREBASE INITIALIZATION AND AUTHENTICATION ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            const iconSelect = document.getElementById('repo-icon-select');
+            ['🏠', '🚗', '✈️', '📱', '💍', '📚', '🎁', '💡'].forEach(icon => {
+                const option = document.createElement('option');
+                option.value = icon;
+                option.textContent = icon + ' - ' + (icon === '🏠' ? 'Home' : icon === '🚗' ? 'Car' : icon === '✈️' ? 'Travel' : icon === '📱' ? 'Phone' : icon === '💍' ? 'Jewelry' : icon === '📚' ? 'Education' : icon === '🎁' ? 'Gift' : 'Hobby');
+                iconSelect.appendChild(option);
+            });
+
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    document.getElementById('user-info').textContent = `Logged in as: ${userId.substring(0, 15)}...`;
+                    
+                    // Start listening to the user's private data
+                    startUserListeners();
+                } else {
+                    document.getElementById('user-info').textContent = "Authenticating...";
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Auth error:", error);
+                        showStatus("Authentication Failed.", 'danger');
+                    }
+                }
+            });
+        });
+
+        // --- 2. FIRESTORE PATHS AND LISTENERS ---
+
+        const getUserDocRef = (uid) => doc(db, 'artifacts', appId, 'users', uid, 'userDoc', 'data');
+        const getGroupDocRef = (accessCode) => doc(db, 'artifacts', appId, 'public', 'data', 'groups', accessCode);
+
+        function startUserListeners() {
+            if (userDataListener) userDataListener(); // Detach previous listener
+
+            // 1. Listen to Private User Data
+            userDataListener = onSnapshot(getUserDocRef(userId), (doc) => {
+                if (doc.exists()) {
+                    window.currentUserData = doc.data();
+                    // Ensure structure is initialized
+                    if (!window.currentUserData.mainBalance) window.currentUserData.mainBalance = 0;
+                    if (!window.currentUserData.repositories) window.currentUserData.repositories = [];
+                    if (!window.currentUserData.groups) window.currentUserData.groups = [];
+                    
+                    renderMainBalance();
+                    renderPersonalRepositories();
+                    
+                    // Check for group membership changes
+                    if (JSON.stringify(window.currentUserData.groups.sort()) !== JSON.stringify(window.userGroupReferences.sort())) {
+                         window.userGroupReferences = window.currentUserData.groups || [];
+                         startGroupListeners();
+                    }
+                } else {
+                    // Create initial user document if it doesn't exist
+                    setDoc(getUserDocRef(userId), { 
+                        mainBalance: 0.00, 
+                        repositories: [],
+                        groups: []
+                    });
+                    showStatus("Welcome! Your financial locker is ready.", 'success');
+                }
+            }, (error) => {
+                console.error("Error fetching user data:", error);
+                showStatus("Error loading user data.", 'danger');
+            });
+        }
+        
+        function startGroupListeners() {
+            if (groupDataListener) groupDataListener(); // Detach previous listener
+            
+            // 2. Listen to all groups the user belongs to
+            const groupRefs = window.userGroupReferences.map(code => getGroupDocRef(code));
+            
+            if (groupRefs.length === 0) {
+                 document.getElementById('group-repo-list').innerHTML = '<p style="color: var(--color-light-taupe);">You haven\'t joined any groups.</p>';
+                 return;
+            }
+
+            groupDataListener = onSnapshot(getFirestore(initializeApp(firebaseConfig)), groupRefs, (snapshots) => {
+                let html = '';
+                snapshots.forEach(doc => {
+                    if (doc.exists()) {
+                        const group = doc.data();
+                        const myContribution = group.members[userId]?.contribution || 0;
+                        const isAdmin = group.members[userId]?.isAdmin || false;
+                        
+                        html += `
+                            <div class="group-item" data-code="${group.accessCode}">
+                                <div class="repo-icon">👥</div>
+                                <div class="repo-details">
+                                    <h4>${group.groupName} (${group.accessCode})</h4>
+                                    <p>Total Balance: BDT ${group.currentBalance.toFixed(2)} | Target: BDT ${group.target.toFixed(2)}</p>
+                                    <p style="font-size:0.8rem; color: var(--color-light-taupe);">My Contribution: BDT ${myContribution.toFixed(2)} ${isAdmin ? '(Admin)' : ''}</p>
+                                </div>
+                                <div class="repo-actions">
+                                    <button class="btn btn-primary" onclick="depositToGroup('${group.accessCode}')">Deposit</button>
+                                    <button class="btn btn-danger" onclick="leaveGroup('${group.accessCode}', ${isAdmin})">Leave/Close</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                document.getElementById('group-repo-list').innerHTML = html;
+            });
+        }
+        
+        // --- 3. RENDER FUNCTIONS ---
+        
+        function renderMainBalance() {
+            document.getElementById('main-balance').textContent = window.currentUserData.mainBalance.toFixed(2);
+        }
+
+        function renderPersonalRepositories() {
+            const listElement = document.getElementById('personal-repo-list');
+            const repos = window.currentUserData.repositories || [];
+            if (repos.length === 0) {
+                listElement.innerHTML = '<p style="color: var(--color-light-taupe);">No personal repositories yet. Create one above!</p>';
+                return;
+            }
+
+            listElement.innerHTML = repos.map(repo => {
+                const percentage = repo.target > 0 ? (repo.current / repo.target) * 100 : 0;
+                const statusColor = percentage >= 100 ? 'var(--color-success)' : 'var(--color-cream)';
+                
+                return `
+                    <div class="repo-item" data-id="${repo.id}">
+                        <div class="repo-icon">${repo.icon}</div>
+                        <div class="repo-details">
+                            <h4 style="color: ${statusColor};">${repo.name} ${percentage >= 100 ? ' (GOAL MET!)' : ''}</h4>
+                            <p>Current: BDT ${repo.current.toFixed(2)} / Target: BDT ${repo.target.toFixed(2)}</p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${Math.min(percentage, 100)}%;"></div>
+                            </div>
+                        </div>
+                        <div class="repo-actions">
+                            <button class="btn btn-secondary" onclick="transferToRepo('${repo.id}')">Fund</button>
+                            <button class="btn btn-danger" onclick="deleteRepo('${repo.id}', '${repo.name}')">Liquidate</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- 4. CORE FUNCTIONALITY (TRANSACTIONS) ---
+        
+        async function depositToMain() {
+            const amountInput = document.getElementById('deposit-amount');
+            const amount = parseFloat(amountInput.value);
+            amountInput.value = ''; // Clear input
+
+            if (isNaN(amount) || amount <= 0) {
+                showStatus("Please enter a valid deposit amount.", 'danger');
+                return;
+            }
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(getUserDocRef(userId));
+                    const currentBalance = userDoc.data()?.mainBalance || 0;
+                    transaction.update(getUserDocRef(userId), { mainBalance: currentBalance + amount });
+                });
+                showStatus(`Successfully deposited BDT ${amount.toFixed(2)} to Main Balance.`, 'success');
+            } catch (error) {
+                console.error("Deposit error:", error);
+                showStatus("Transaction failed. Check console for details.", 'danger');
+            }
+        }
+        
+        async function createPersonalRepository() {
+            const name = document.getElementById('repo-name').value.trim();
+            const target = parseFloat(document.getElementById('repo-target').value);
+            const icon = document.getElementById('repo-icon-select').value;
+            
+            if (!name || isNaN(target) || target <= 0) {
+                showStatus("Please provide a valid name and target amount.", 'danger');
+                return;
+            }
+
+            const newRepo = {
+                id: crypto.randomUUID(), // Unique ID for the repository
+                name: name,
+                target: target,
+                current: 0.00,
+                icon: icon,
+            };
+
+            try {
+                await setDoc(getUserDocRef(userId), { 
+                    repositories: arrayUnion(newRepo) 
+                }, { merge: true });
+                showStatus(`Repository "${name}" created successfully!`, 'success');
+            } catch (error) {
+                console.error("Create repository error:", error);
+                showStatus("Failed to create repository.", 'danger');
+            }
+        }
+        
+        async function transferToRepo(repoId) {
+            const amount = parseFloat(prompt("Enter amount to transfer from Main Balance:"));
+            
+            if (isNaN(amount) || amount <= 0) return;
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(getUserDocRef(userId));
+                    const data = userDoc.data();
+                    const currentBalance = data.mainBalance || 0;
+                    let repositories = data.repositories || [];
+                    
+                    if (currentBalance < amount) {
+                        throw new Error("Insufficient funds in Main Balance.");
+                    }
+
+                    const repoIndex = repositories.findIndex(r => r.id === repoId);
+                    if (repoIndex === -1) {
+                         throw new Error("Repository not found.");
+                    }
+                    
+                    // Update Repo and Main Balance
+                    repositories[repoIndex].current += amount;
+                    transaction.update(getUserDocRef(userId), { 
+                        mainBalance: currentBalance - amount,
+                        repositories: repositories 
+                    });
+                });
+                showStatus(`BDT ${amount.toFixed(2)} transferred to repository.`, 'success');
+            } catch (error) {
+                console.error("Transfer error:", error);
+                showStatus(error.message || "Transfer failed.", 'danger');
+            }
+        }
+        
+        async function deleteRepo(repoId, repoName) {
+            const confirmDelete = confirm(`Are you sure you want to LIQUIDATE "${repoName}"? All funds will return to your Main Balance.`);
+            if (!confirmDelete) return;
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(getUserDocRef(userId));
+                    const data = userDoc.data();
+                    let repositories = data.repositories || [];
+                    
+                    const repo = repositories.find(r => r.id === repoId);
+                    if (!repo) {
+                         throw new Error("Repository not found.");
+                    }
+                    
+                    const refundAmount = repo.current;
+                    const updatedRepositories = repositories.filter(r => r.id !== repoId);
+                    
+                    transaction.update(getUserDocRef(userId), { 
+                        mainBalance: data.mainBalance + refundAmount,
+                        repositories: updatedRepositories
+                    });
+                });
+                showStatus(`Repository "${repoName}" liquidated. BDT ${refundAmount.toFixed(2)} refunded to Main Balance.`, 'success');
+            } catch (error) {
+                console.error("Liquidation error:", error);
+                showStatus("Liquidation failed.", 'danger');
+            }
+        }
+        
+        // --- 5. GROUP FUNCTIONALITY ---
+
+        async function createGroup() {
+            const codeInput = document.getElementById('group-code');
+            const newCode = codeInput.value.trim().toUpperCase();
+            codeInput.value = '';
+            
+            if (newCode.length < 4 || newCode.length > 10) {
+                showStatus("Group name/code must be between 4 and 10 characters.", 'danger');
+                return;
+            }
+            
+            const targetAmount = parseFloat(prompt("Enter the TARGET amount for the new group fund (e.g., 50000):"));
+            if (isNaN(targetAmount) || targetAmount <= 0) return;
+
+            try {
+                const groupRef = getGroupDocRef(newCode);
+                
+                await runTransaction(db, async (transaction) => {
+                    const groupDoc = await transaction.get(groupRef);
+                    if (groupDoc.exists()) {
+                        throw new Error("A group with this code already exists.");
+                    }
+
+                    // Create the new group document (Public Data)
+                    transaction.set(groupRef, {
+                        accessCode: newCode,
+                        groupName: newCode, // Use code as initial name
+                        target: targetAmount,
+                        currentBalance: 0.00,
+                        members: {
+                            [userId]: { contribution: 0.00, isAdmin: true } // Creator is admin
+                        }
+                    });
+                    
+                    // Add the group reference to the creator's private document
+                    transaction.update(getUserDocRef(userId), { 
+                        groups: arrayUnion(newCode)
+                    });
+                });
+                showStatus(`Group "${newCode}" created successfully!`, 'success');
+            } catch (error) {
+                console.error("Create group error:", error);
+                showStatus(error.message || "Failed to create group.", 'danger');
+            }
+        }
+
+        async function joinGroup() {
+            const codeInput = document.getElementById('group-code');
+            const code = codeInput.value.trim().toUpperCase();
+            codeInput.value = '';
+            
+            if (code.length < 4) {
+                showStatus("Please enter a valid access code.", 'danger');
+                return;
+            }
+
+            try {
+                const groupRef = getGroupDocRef(code);
+                
+                await runTransaction(db, async (transaction) => {
+                    const groupDoc = await transaction.get(groupRef);
+                    if (!groupDoc.exists()) {
+                        throw new Error("Group not found. Please check the code.");
+                    }
+                    
+                    const groupData = groupDoc.data();
+                    
+                    // Check if already a member
+                    if (groupData.members && groupData.members[userId]) {
+                        throw new Error("You are already a member of this group.");
+                    }
+
+                    // Add user to the group's member list (Public Data)
+                    const updatedMembers = {
+                        ...groupData.members,
+                        [userId]: { contribution: 0.00, isAdmin: false }
+                    };
+
+                    transaction.update(groupRef, { members: updatedMembers });
+                    
+                    // Add the group reference to the user's private document
+                    transaction.update(getUserDocRef(userId), { 
+                        groups: arrayUnion(code)
+                    });
+                });
+                showStatus(`Successfully joined group "${code}"!`, 'success');
+            } catch (error) {
+                console.error("Join group error:", error);
+                showStatus(error.message || "Failed to join group.", 'danger');
+            }
+        }
+        
+        async function depositToGroup(accessCode) {
+            const amount = parseFloat(prompt("Enter amount to transfer from Main Balance to the group:"));
+            
+            if (isNaN(amount) || amount <= 0) return;
+            
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(getUserDocRef(userId));
+                    const groupDoc = await transaction.get(getGroupDocRef(accessCode));
+                    
+                    const userData = userDoc.data();
+                    const groupData = groupDoc.data();
+                    
+                    if (userData.mainBalance < amount) {
+                        throw new Error("Insufficient funds in Main Balance.");
+                    }
+                    
+                    // 1. Update User's Main Balance (Private Data)
+                    transaction.update(getUserDocRef(userId), { 
+                        mainBalance: userData.mainBalance - amount
+                    });
+                    
+                    // 2. Update Group Balance and User Contribution (Public Data)
+                    const currentGroupBalance = groupData.currentBalance || 0;
+                    const myContribution = groupData.members[userId]?.contribution || 0;
+                    const isAdmin = groupData.members[userId]?.isAdmin || false;
+
+                    const updatedMembers = {
+                        ...groupData.members,
+                        [userId]: { contribution: myContribution + amount, isAdmin: isAdmin }
+                    };
+                    
+                    transaction.update(getGroupDocRef(accessCode), { 
+                        currentBalance: currentGroupBalance + amount,
+                        members: updatedMembers
+                    });
+                });
+                showStatus(`BDT ${amount.toFixed(2)} deposited to group ${accessCode}.`, 'success');
+            } catch (error) {
+                console.error("Group deposit error:", error);
+                showStatus(error.message || "Group deposit failed.", 'danger');
+            }
+        }
+        
+        async function leaveGroup(accessCode, isAdmin) {
+            if (isAdmin) {
+                const confirmClose = confirm("WARNING: As admin, leaving will CLOSE the group! All funds will be returned to contributors' main balances based on their share. Proceed?");
+                if (!confirmClose) return;
+                
+                await liquidateGroup(accessCode);
+                
+            } else {
+                const confirmLeave = confirm("Are you sure you want to leave this group? Your contribution will remain in the fund until the group is closed.");
+                if (!confirmLeave) return;
+
+                // Simple leave (removes reference from user's list)
+                await runTransaction(db, async (transaction) => {
+                    // 1. Remove user from group's member list (Public Data)
+                    const groupDoc = await transaction.get(getGroupDocRef(accessCode));
+                    const groupData = groupDoc.data();
+                    
+                    // Create new members object without the current user
+                    const updatedMembers = Object.keys(groupData.members).reduce((acc, key) => {
+                        if (key !== userId) {
+                            acc[key] = groupData.members[key];
+                        }
+                        return acc;
+                    }, {});
+
+                    transaction.update(getGroupDocRef(accessCode), { members: updatedMembers });
+
+                    // 2. Remove group reference from user's private document
+                    transaction.update(getUserDocRef(userId), { 
+                        groups: arrayRemove(accessCode)
+                    });
+                });
+                showStatus(`Successfully left group ${accessCode}.`, 'success');
+            }
+        }
+
+        async function liquidateGroup(accessCode) {
+             try {
+                await runTransaction(db, async (transaction) => {
+                    const groupRef = getGroupDocRef(accessCode);
+                    const groupDoc = await transaction.get(groupRef);
+                    if (!groupDoc.exists()) return;
+
+                    const groupData = groupDoc.data();
+                    const totalBalance = groupData.currentBalance;
+                    const members = groupData.members;
+
+                    // 1. Calculate total contribution for percentage distribution
+                    const totalContribution = Object.values(members).reduce((sum, m) => sum + m.contribution, 0);
+
+                    for (const memberId in members) {
+                        const contribution = members[memberId].contribution;
+                        const userRefund = totalBalance * (contribution / totalContribution);
+                        
+                        const memberUserDocRef = getUserDocRef(memberId);
+                        const memberUserDoc = await transaction.get(memberUserDocRef);
+                        const memberUserData = memberUserDoc.data();
+
+                        // A. Refund to Member's Main Balance (Private Data)
+                        if (memberUserDoc.exists()) {
+                            transaction.update(memberUserDocRef, {
+                                mainBalance: (memberUserData.mainBalance || 0) + userRefund,
+                                groups: arrayRemove(accessCode) // B. Remove group reference
+                            });
+                        }
+                    }
+
+                    // 2. Delete the Group Document (Public Data)
+                    transaction.delete(groupRef);
+                });
+                showStatus(`Group ${accessCode} has been successfully closed and funds distributed.`, 'success');
+            } catch (error) {
+                console.error("Group liquidation error:", error);
+                showStatus(error.message || "Group liquidation failed.", 'danger');
+            }
+        }
+
+        // --- 6. UTILITY FUNCTIONS ---
+        
+        function showStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.textContent = message;
+            statusDiv.className = 'show'; // Remove other classes
+            statusDiv.style.backgroundColor = type === 'success' ? 'var(--color-success)' : 'var(--color-danger)';
+            statusDiv.style.color = type === 'success' ? 'var(--color-darkest)' : 'var(--color-cream)';
+
+            setTimeout(() => {
+                statusDiv.className = '';
+            }, 3500);
+        }
+
+        // Initialize Firebase logging for debug (optional, but good practice)
+        // import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // setLogLevel('Debug');
+    </script>
 </body>
 </html>
