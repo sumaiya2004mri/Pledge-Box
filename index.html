@@ -1,1050 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pledge-Box: Digital Financial Dashboard</title>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* --- Color Variables & General Resets --- */
-        :root {
-            --color-darkest: #20201A;      /* Black / Background */
-            --color-muted-brown: #907B60;  /* Muted Brown / Accent Background */
-            --color-light-taupe: #C1B6AE;  /* Light Grayish Brown / Card Background */
-            --color-cream: #E9D9C7;        /* Very Light Cream / Primary Text */
-            --color-dark-olive: #474130;   /* Dark Olive / Header & Footer */
-            --color-success: #4CAF50;
-            --color-danger: #D32F2F;
-            --color-warning: #FFC107;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            color: var(--color-cream);
-            background-color: var(--color-darkest);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* --- Header Styling --- */
-        header {
-            background-color: var(--color-dark-olive);
-            color: var(--color-cream);
-            padding: 1.5rem 0;
-            text-align: center;
-            border-bottom: 2px solid var(--color-muted-brown);
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-
-        header p {
-            font-size: 1.1rem;
-            font-weight: 300;
-            margin-top: 0.5rem;
-            color: var(--color-light-taupe);
-        }
-
-        #user-info {
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-            color: var(--color-cream);
-            font-weight: 600;
-        }
-        
-        #user-id-display {
-            font-family: monospace;
-            display: block;
-            margin-top: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            background-color: var(--color-darkest);
-            color: var(--color-warning);
-            font-size: 0.8rem;
-            border-radius: 4px;
-            max-width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-            word-break: break-all;
-        }
-        
-        /* Demo Mode Specific Styling */
-        .demo-mode-banner {
-            background-color: var(--color-danger);
-            color: var(--color-cream);
-            padding: 0.5rem;
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-        }
-
-
-        /* --- Main Content Area & Layout --- */
-        main {
-            flex-grow: 1;
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr);
-            gap: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        @media (max-width: 1024px) {
-            main {
-                grid-template-columns: 1fr;
-                padding: 1rem;
-            }
-        }
-
-        /* --- Card Styling (General) --- */
-        .section-card {
-            background-color: var(--color-muted-brown);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .section-card h2 {
-            color: var(--color-cream);
-            font-size: 2rem;
-            margin-top: 0;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid var(--color-light-taupe);
-            padding-bottom: 0.5rem;
-        }
-
-        .balance-display {
-            background-color: var(--color-dark-olive);
-            color: var(--color-cream);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        /* --- Button & Form Styling --- */
-        .btn-container {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 0.7rem 1rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: opacity 0.3s, transform 0.1s;
-            flex-grow: 1;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-primary {
-            background-color: var(--color-cream);
-            color: var(--color-darkest);
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-
-        .btn-secondary {
-            background-color: var(--color-dark-olive);
-            color: var(--color-cream);
-        }
-
-        .btn-secondary:hover {
-            opacity: 0.9;
-        }
-
-        .btn-danger {
-            background-color: var(--color-danger);
-            color: var(--color-cream);
-        }
-
-        input[type="text"], input[type="number"], select {
-            width: 100%;
-            padding: 0.7rem;
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--color-light-taupe);
-            border-radius: 4px;
-            box-sizing: border-box;
-            background-color: var(--color-darkest);
-            color: var(--color-cream);
-        }
-
-        label {
-            display: block;
-            margin-top: 1rem;
-            font-weight: 600;
-            color: var(--color-cream);
-        }
-
-        /* --- Repository List Styling --- */
-        .repo-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .repo-item, .group-item {
-            background-color: var(--color-dark-olive);
-            padding: 1rem;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--color-cream);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .repo-details {
-            flex-grow: 1;
-        }
-
-        .repo-details h4 {
-            margin: 0 0 0.2rem 0;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--color-light-taupe);
-        }
-
-        .repo-details p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: var(--color-cream);
-        }
-
-        .repo-icon {
-            font-size: 2rem;
-            margin-right: 1rem;
-        }
-
-        .repo-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-shrink: 0;
-        }
-        
-        .progress-bar-container {
-            width: 100%;
-            background-color: var(--color-darkest);
-            border-radius: 5px;
-            margin-top: 0.5rem;
-            height: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: var(--color-success);
-            transition: width 0.5s ease-in-out;
-        }
-
-        /* Group Specific Styling */
-        .group-item {
-            background-color: var(--color-muted-brown);
-            border: 2px solid var(--color-cream);
-        }
-
-        /* Loading and Messaging */
-        #status-message {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background-color: var(--color-success);
-            color: var(--color-darkest);
-            text-align: center;
-            padding: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease-in-out;
-            transform: translateY(-100%);
-            z-index: 1000;
-        }
-
-        #status-message.show {
-            transform: translateY(0);
-        }
-        
-        footer {
-            background-color: var(--color-dark-olive);
-            color: var(--color-light-taupe);
-            text-align: center;
-            padding: 1rem;
-            font-size: 0.8rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pledge-Box: Demo Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --color-darkest: #20201A;
+    --color-muted-brown: #907B60;
+    --color-light-taupe: #C1B6AE;
+    --color-cream: #E9D9C7;
+    --color-dark-olive: #474130;
+    --color-success: #4CAF50;
+    --color-danger: #D32F2F;
+    --color-warning: #FFC107;
+}
+body {
+    margin: 0; font-family: 'Inter', sans-serif;
+    background-color: var(--color-darkest);
+    color: var(--color-cream);
+}
+header {
+    text-align: center;
+    background-color: var(--color-dark-olive);
+    padding: 1.5rem;
+    border-bottom: 2px solid var(--color-muted-brown);
+}
+header h1 {margin: 0; font-size: 2rem;}
+.demo-mode-banner {
+    background-color: var(--color-danger);
+    color: var(--color-cream);
+    padding: 0.5rem;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 1.5rem;
+}
+@media (max-width:900px) { main {grid-template-columns:1fr;} }
+.section-card {
+    background-color: var(--color-muted-brown);
+    padding: 1rem;
+    border-radius: 10px;
+}
+.balance-display {
+    background-color: var(--color-dark-olive);
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+.btn {
+    padding: .7rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.btn-primary {background-color: var(--color-cream); color: var(--color-darkest);}
+.btn-secondary {background-color: var(--color-dark-olive); color: var(--color-cream);}
+.btn-danger {background-color: var(--color-danger); color: var(--color-cream);}
+.repo-list {display:flex;flex-direction:column;gap:1rem;}
+.repo-item {
+    display:flex;align-items:center;justify-content:space-between;
+    background-color: var(--color-dark-olive);
+    padding:1rem;border-radius:8px;
+}
+.progress-bar-container {
+    width:100%;background-color:var(--color-darkest);
+    height:10px;border-radius:4px;overflow:hidden;
+}
+.progress-bar {
+    background-color:var(--color-success);
+    height:100%;
+}
+footer {
+    background-color: var(--color-dark-olive);
+    color: var(--color-light-taupe);
+    text-align: center;
+    padding: .5rem;
+}
+</style>
 </head>
 <body>
+<header>
+  <div class="demo-mode-banner">DEMO MODE: Data not saved</div>
+  <h1>Pledge-Box</h1>
+  <p>Your secure space for goal-oriented and collaborative savings.</p>
+</header>
 
-    <header>
-        <div id="demo-mode-banner" class="demo-mode-banner" style="display:none;">
-            DEMO MODE: Data will NOT be saved. Use in Canvas for persistence.
+<main>
+  <div class="section-card">
+    <h2>Personal Goal Locker</h2>
+    <div class="balance-display">Main Balance: BDT <span id="main-balance">0.00</span></div>
+    <label>Deposit to Main Balance:</label>
+    <input type="number" id="deposit-amount" placeholder="Enter amount" min="1">
+    <button class="btn btn-primary" onclick="depositToMain()">Deposit</button>
+
+    <h3>Create New Repository</h3>
+    <label>Repository Name:</label>
+    <input type="text" id="repo-name" placeholder="e.g., Trip, Phone">
+    <label>Target Amount:</label>
+    <input type="number" id="repo-target" placeholder="5000" min="1">
+    <label>Choose Icon:</label>
+    <select id="repo-icon">
+      <option>✈️ Travel</option>
+      <option>🏠 Home</option>
+      <option>📱 Phone</option>
+      <option>🎮 Gaming</option>
+      <option>🎁 Gift</option>
+    </select>
+    <button class="btn btn-secondary" onclick="createRepo()">Create</button>
+
+    <h3>My Repositories</h3>
+    <div id="repo-list" class="repo-list">
+      <p style="color:var(--color-light-taupe)">No repositories yet.</p>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2>Group Savings (Demo Disabled)</h2>
+    <p style="color:var(--color-light-taupe)">Group features are unavailable in demo mode.</p>
+  </div>
+</main>
+
+<footer>&copy; 2025 Pledge-Box. Demo build.</footer>
+
+<script>
+let userData = {
+  mainBalance: 0,
+  repositories: []
+};
+
+function updateBalance() {
+  document.getElementById('main-balance').textContent = userData.mainBalance.toFixed(2);
+}
+
+function renderRepos() {
+  const list = document.getElementById('repo-list');
+  if (userData.repositories.length === 0) {
+    list.innerHTML = '<p style="color:var(--color-light-taupe)">No repositories yet.</p>';
+    return;
+  }
+  list.innerHTML = userData.repositories.map(r => {
+    const pct = Math.min(100, (r.current / r.target) * 100);
+    return `
+      <div class="repo-item">
+        <div style="flex:1">
+          <strong>${r.icon} ${r.name}</strong><br>
+          <small>BDT ${r.current.toFixed(2)} / ${r.target.toFixed(2)}</small>
+          <div class="progress-bar-container"><div class="progress-bar" style="width:${pct}%"></div></div>
         </div>
-        <h1>Pledge-Box</h1>
-        <p>Your secure space for goal-oriented and collaborative savings.</p>
-        <div id="user-info">Initializing...</div>
-        <span id="user-id-display"></span>
-    </header>
-
-    <main>
-        <!-- PRIVATE LOCKER SECTION -->
-        <div class="section-card" id="private-locker-section">
-            <h2>Personal Goal Locker</h2>
-            
-            <!-- Main Balance Display -->
-            <div class="balance-display">
-                Main Balance: BDT <span id="main-balance">0.00</span>
-            </div>
-            
-            <!-- Deposit Form -->
-            <div style="background-color: var(--color-dark-olive); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-                <label for="deposit-amount">Deposit to Main Balance (BDT):</label>
-                <input type="number" id="deposit-amount" placeholder="Enter amount" min="1" required>
-                <button class="btn btn-primary" onclick="depositToMain()">Deposit</button>
-            </div>
-
-            <!-- Create Repository Form -->
-            <h3>Create New Repository</h3>
-            <div style="background-color: var(--color-light-taupe); color: var(--color-darkest); padding: 1rem; border-radius: 6px;">
-                <label for="repo-name">Repository Name:</label>
-                <input type="text" id="repo-name" placeholder="e.g., New Phone, India Trip">
-                <label for="repo-target">Target Amount (Fixed):</label>
-                <input type="number" id="repo-target" placeholder="BDT 5000" min="1">
-                <label for="repo-icon-select">Choose Icon:</label>
-                <select id="repo-icon-select"></select>
-                <button class="btn btn-secondary" style="background-color: var(--color-dark-olive);" onclick="createPersonalRepository()">Create Repository</button>
-            </div>
-
-            <!-- Personal Repositories List -->
-            <h3 style="margin-top: 2rem; color: var(--color-cream);">My Repositories</h3>
-            <div id="personal-repo-list" class="repo-list">
-                <p style="color: var(--color-light-taupe);">Setting up your locker...</p>
-            </div>
+        <div>
+          <button class="btn btn-secondary" onclick="fundRepo('${r.id}')">Fund</button>
+          <button class="btn btn-danger" onclick="deleteRepo('${r.id}')">Delete</button>
         </div>
+      </div>`;
+  }).join('');
+}
 
-        <!-- GROUP & ACCOUNT SECTION -->
-        <div class="section-card" id="group-section">
-            <h2>Group Savings & Account</h2>
-            
-            <!-- Group Actions -->
-            <div style="background-color: var(--color-dark-olive); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-                <h3>Join or Create Group</h3>
-                <label for="group-code">Access Code:</label>
-                <input type="text" id="group-code" placeholder="Enter 4-10 letter Code or New Name">
-                <div class="btn-container">
-                    <button class="btn btn-primary" onclick="joinGroup()">Join Existing</button>
-                    <button class="btn btn-secondary" onclick="createGroup()">Create New</button>
-                </div>
-            </div>
+function depositToMain() {
+  const val = parseFloat(document.getElementById('deposit-amount').value);
+  if (isNaN(val) || val <= 0) return alert("Enter valid amount");
+  userData.mainBalance += val;
+  updateBalance();
+  document.getElementById('deposit-amount').value = '';
+}
 
-            <!-- Group Repositories List -->
-            <h3 style="margin-top: 2rem; color: var(--color-cream);">My Groups</h3>
-            <div id="group-repo-list" class="repo-list">
-                <p style="color: var(--color-light-taupe);">No groups loaded.</p>
-            </div>
-        </div>
-    </main>
+function createRepo() {
+  const name = document.getElementById('repo-name').value.trim();
+  const target = parseFloat(document.getElementById('repo-target').value);
+  const icon = document.getElementById('repo-icon').value.split(' ')[0];
+  if (!name || isNaN(target) || target <= 0) return alert("Enter valid name and target");
+  const repo = { id: Math.random().toString(36).substring(2,8), name, target, current: 0, icon };
+  userData.repositories.push(repo);
+  document.getElementById('repo-name').value = '';
+  document.getElementById('repo-target').value = '';
+  renderRepos();
+}
 
-    <div id="status-message"></div>
+function fundRepo(id) {
+  const repo = userData.repositories.find(r => r.id === id);
+  if (!repo) return;
+  const amount = parseFloat(prompt("Enter amount to fund:"));
+  if (isNaN(amount) || amount <= 0) return alert("Invalid amount");
+  if (amount > userData.mainBalance) return alert("Not enough in main balance");
+  userData.mainBalance -= amount;
+  repo.current += amount;
+  updateBalance();
+  renderRepos();
+}
 
-    <footer>
-        <p>&copy; 2023 Pledge-Box. Designed with the Pure Palette.</p>
-    </footer>
+function deleteRepo(id) {
+  const repo = userData.repositories.find(r => r.id === id);
+  if (!repo) return;
+  if (!confirm(`Delete ${repo.name}?`)) return;
+  userData.mainBalance += repo.current;
+  userData.repositories = userData.repositories.filter(r => r.id !== id);
+  updateBalance();
+  renderRepos();
+}
 
-    <!-- Firebase SDK Imports -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, collection, setDoc, runTransaction, arrayRemove, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- 1. GLOBAL STATE & CONFIGURATION ---
-        
-        // Check for Canvas environment globals
-        const isCanvasEnvironment = typeof __firebase_config !== 'undefined' && __firebase_config !== "";
-        let isDemoMode = !isCanvasEnvironment;
-        
-        const DUMMY_FIREBASE_CONFIG = {
-            apiKey: "DUMMY_API_KEY_FOR_DEMO",
-            authDomain: "dummy-project.firebaseapp.com",
-            projectId: "dummy-project-12345",
-            storageBucket: "dummy-project.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef1234567890abcdef"
-        };
-        
-        // Set configurations based on environment
-        const appId = isCanvasEnvironment ? __app_id : 'default-demo-app-id';
-        const firebaseConfig = isCanvasEnvironment ? JSON.parse(__firebase_config) : DUMMY_FIREBASE_CONFIG;
-        const canvasAuthToken = isCanvasEnvironment ? __initial_auth_token : null;
-
-
-        let db, auth, userId = null;
-        let userDataListener = null;
-        let groupDataListener = null;
-
-        // Global data holders
-        window.currentUserData = { mainBalance: 0.00, repositories: [], groups: [] };
-        window.userGroupReferences = []; 
-        
-        // Icons for personalization
-        const ICON_MAP = {
-            '🏠': 'Home', '🚗': 'Car', '✈️': 'Travel', '📱': 'Phone', 
-            '💍': 'Jewelry', '📚': 'Education', '🎁': 'Gift', '💡': 'Project',
-            '🧑‍🤝‍🧑': 'Friendship', '🌳': 'Nature', '🪙': 'Invest', '🎮': 'Gaming'
-        };
-        
-        // Expose functions globally for HTML buttons
-        window.depositToMain = depositToMain;
-        window.createPersonalRepository = createPersonalRepository;
-        window.transferToRepo = transferToRepo;
-        window.deleteRepo = deleteRepo;
-        window.createGroup = createGroup;
-        window.joinGroup = joinGroup;
-        window.depositToGroup = depositToGroup;
-        window.leaveGroup = leaveGroup;
-
-        // --- 2. FIREBASE INITIALIZATION AND AUTHENTICATION ---
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Display demo mode warning if necessary
-            if (isDemoMode) {
-                 document.getElementById('demo-mode-banner').style.display = 'block';
-                 document.getElementById('user-info').textContent = "Demo Mode Active. Data not persisted.";
-            }
-
-            // Populate the icon selector
-            const iconSelect = document.getElementById('repo-icon-select');
-            Object.keys(ICON_MAP).forEach(icon => {
-                const option = document.createElement('option');
-                option.value = icon;
-                option.textContent = `${icon} - ${ICON_MAP[icon]}`;
-                iconSelect.appendChild(option);
-            });
-            
-            // Initialize Firebase services
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            // Start Authentication Logic
-            if (isDemoMode) {
-                // In demo mode, simulate successful sign-in
-                userId = "DEMO_USER_" + Math.random().toString(36).substring(2, 8).toUpperCase();
-                document.getElementById('user-id-display').textContent = `DEMO ID: ${userId}`;
-                // Manually start listeners using mocked initial data
-                startUserListeners(true); 
-                return;
-            }
-
-            // Canvas Environment: Use real Auth flow
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    userId = user.uid;
-                    document.getElementById('user-info').textContent = `User Authenticated.`;
-                    document.getElementById('user-id-display').textContent = `ID: ${userId}`;
-                    startUserListeners(false);
-                } else {
-                    document.getElementById('user-info').textContent = "Attempting Sign-In...";
-                    try {
-                        if (canvasAuthToken) {
-                            await signInWithCustomToken(auth, canvasAuthToken);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    } catch (error) {
-                        console.error("Auth error:", error);
-                        showStatus("Authentication Failed. Check console.", 'danger');
-                        document.getElementById('user-info').textContent = "Authentication Failed.";
-                    }
-                }
-            });
-        });
-
-        // --- 3. FIRESTORE PATHS AND LISTENERS ---
-
-        const getUserDocRef = (uid) => doc(db, 'artifacts', appId, 'users', uid, 'userDoc', 'data');
-        const getGroupDocRef = (accessCode) => doc(db, 'artifacts', appId, 'public', 'data', 'groups', accessCode);
-
-        function startUserListeners(isDemo) {
-            const listEl = document.getElementById('personal-repo-list');
-            
-            if (isDemo) {
-                // Mock initial data for demo mode
-                window.currentUserData.mainBalance = 500.00;
-                window.currentUserData.repositories = [{
-                    id: 'demo-1', name: 'Demo Trip Fund', target: 2000.00, current: 750.00, icon: '✈️'
-                }];
-                window.currentUserData.groups = [];
-                renderMainBalance();
-                renderPersonalRepositories();
-                listEl.innerHTML = '<p style="color: var(--color-light-taupe);">Demo data loaded. Changes are temporary.</p>';
-                return;
-            }
-            
-            if (!db || !userId) return;
-            if (userDataListener) userDataListener(); // Detach previous listener
-
-            // 1. Listen to Private User Data
-            userDataListener = onSnapshot(getUserDocRef(userId), (doc) => {
-                if (doc.exists()) {
-                    window.currentUserData = doc.data();
-                    if (!window.currentUserData.mainBalance) window.currentUserData.mainBalance = 0;
-                    if (!window.currentUserData.repositories) window.currentUserData.repositories = [];
-                    if (!window.currentUserData.groups) window.currentUserData.groups = [];
-                    
-                    renderMainBalance();
-                    renderPersonalRepositories();
-                    
-                    const currentGroups = window.currentUserData.groups || [];
-                    if (JSON.stringify(currentGroups.sort()) !== JSON.stringify(window.userGroupReferences.sort())) {
-                         window.userGroupReferences = currentGroups;
-                         startGroupListeners();
-                    }
-                } else {
-                    // Create initial user document if it doesn't exist
-                    setDoc(getUserDocRef(userId), { 
-                        mainBalance: 0.00, 
-                        repositories: [],
-                        groups: []
-                    }).catch(e => console.error("Initial doc creation failed:", e));
-                    listEl.innerHTML = '<p style="color: var(--color-light-taupe);">Setting up your locker...</p>';
-                }
-            }, (error) => {
-                console.error("Error fetching user data:", error);
-                showStatus("Error loading private user data.", 'danger');
-            });
-        }
-        
-        function startGroupListeners() {
-            if (isDemoMode) {
-                 document.getElementById('group-repo-list').innerHTML = '<p style="color: var(--color-light-taupe);">Group features are disabled in Demo Mode.</p>';
-                 return;
-            }
-            if (!db) return;
-            if (groupDataListener) groupDataListener(); 
-            
-            const groupListEl = document.getElementById('group-repo-list');
-            const groupRefs = window.userGroupReferences.map(code => getGroupDocRef(code));
-            
-            if (groupRefs.length === 0) {
-                 groupListEl.innerHTML = '<p style="color: var(--color-light-taupe);">You haven\'t joined any groups. Create or Join one!</p>';
-                 return;
-            }
-
-            // Listen to all referenced groups in one go
-            groupDataListener = onSnapshot(db, groupRefs, (snapshots) => {
-                let html = '';
-                snapshots.forEach(doc => {
-                    if (doc.exists()) {
-                        const group = doc.data();
-                        const myContribution = group.members[userId]?.contribution || 0;
-                        const isAdmin = group.members[userId]?.isAdmin || false;
-                        
-                        const progress = group.target > 0 ? (group.currentBalance / group.target) * 100 : 0;
-                        
-                        html += `
-                            <div class="group-item" data-code="${group.accessCode}">
-                                <div class="repo-icon">🧑‍🤝‍🧑</div>
-                                <div class="repo-details">
-                                    <h4>${group.groupName} (${group.accessCode}) ${isAdmin ? '(Admin)' : ''}</h4>
-                                    <p>Total Balance: BDT ${group.currentBalance.toFixed(2)} / Target: BDT ${group.target.toFixed(2)}</p>
-                                    <div class="progress-bar-container"><div class="progress-bar" style="width: ${Math.min(progress, 100)}%;"></div></div>
-                                    <p style="font-size:0.8rem; color: var(--color-cream);">My Contribution: BDT ${myContribution.toFixed(2)}</p>
-                                </div>
-                                <div class="repo-actions">
-                                    <button class="btn btn-primary" onclick="depositToGroup('${group.accessCode}')">Fund</button>
-                                    <button class="btn btn-danger" onclick="leaveGroup('${group.accessCode}', ${isAdmin})">Leave</button>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-                groupListEl.innerHTML = html;
-            });
-        }
-        
-        // --- 4. RENDER FUNCTIONS ---
-        
-        function renderMainBalance() {
-            document.getElementById('main-balance').textContent = (window.currentUserData.mainBalance || 0).toFixed(2);
-        }
-
-        function renderPersonalRepositories() {
-            const listElement = document.getElementById('personal-repo-list');
-            const repos = window.currentUserData.repositories || [];
-            
-            if (repos.length === 0) {
-                listElement.innerHTML = '<p style="color: var(--color-light-taupe);">No personal repositories yet. Create one above!</p>';
-                return;
-            }
-
-            listElement.innerHTML = repos.map(repo => {
-                const percentage = repo.target > 0 ? (repo.current / repo.target) * 100 : 0;
-                const statusColor = percentage >= 100 ? 'var(--color-success)' : 'var(--color-light-taupe)';
-                
-                return `
-                    <div class="repo-item" data-id="${repo.id}">
-                        <div class="repo-icon">${repo.icon}</div>
-                        <div class="repo-details">
-                            <h4 style="color: ${statusColor};">${repo.name} ${percentage >= 100 ? ' (GOAL MET!)' : ''}</h4>
-                            <p>Current: BDT ${repo.current.toFixed(2)} / Target: BDT ${repo.target.toFixed(2)}</p>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar" style="width: ${Math.min(percentage, 100)}%;"></div>
-                            </div>
-                        </div>
-                        <div class="repo-actions">
-                            <button class="btn btn-secondary" onclick="transferToRepo('${repo.id}')">Fund</button>
-                            <button class="btn btn-danger" onclick="deleteRepo('${repo.id}', '${repo.name}')">Liquidate</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // --- 5. CORE FUNCTIONALITY (TRANSACTIONS) ---
-        
-        function checkDemoMode() {
-            if (isDemoMode) {
-                showStatus("ACTION BLOCKED: Persistence is disabled in Demo Mode.", 'danger');
-                // Allow UI changes to happen locally in Demo Mode for better user feedback
-                return true; 
-            }
-            if (!userId) { 
-                showStatus("Please wait for authentication to complete.", 'danger'); 
-                return false; 
-            }
-            return false;
-        }
-
-        async function depositToMain() {
-            if (checkDemoMode()) {
-                const amount = parseFloat(document.getElementById('deposit-amount').value);
-                if (!isNaN(amount) && amount > 0) {
-                    window.currentUserData.mainBalance = (window.currentUserData.mainBalance || 0) + amount;
-                    document.getElementById('deposit-amount').value = '';
-                    renderMainBalance();
-                }
-                return;
-            }
-
-            const amountInput = document.getElementById('deposit-amount');
-            const amount = parseFloat(amountInput.value);
-            amountInput.value = '';
-
-            if (isNaN(amount) || amount <= 0) {
-                showStatus("Please enter a valid deposit amount.", 'danger');
-                return;
-            }
-
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const userDoc = await transaction.get(getUserDocRef(userId));
-                    const currentBalance = userDoc.data()?.mainBalance || 0;
-                    transaction.update(getUserDocRef(userId), { mainBalance: currentBalance + amount });
-                });
-                showStatus(`Successfully deposited BDT ${amount.toFixed(2)} to Main Balance.`, 'success');
-            } catch (error) {
-                console.error("Deposit error:", error);
-                showStatus("Transaction failed. Check console for details.", 'danger');
-            }
-        }
-        
-        async function createPersonalRepository() {
-            if (checkDemoMode()) {
-                const name = document.getElementById('repo-name').value.trim();
-                const target = parseFloat(document.getElementById('repo-target').value);
-                const icon = document.getElementById('repo-icon-select').value;
-                if (!name || isNaN(target) || target <= 0) return;
-                
-                const newRepo = { id: crypto.randomUUID(), name, target, current: 0.00, icon };
-                window.currentUserData.repositories.push(newRepo);
-                document.getElementById('repo-name').value = '';
-                document.getElementById('repo-target').value = '';
-                renderPersonalRepositories();
-                return;
-            }
-
-            const name = document.getElementById('repo-name').value.trim();
-            const target = parseFloat(document.getElementById('repo-target').value);
-            const icon = document.getElementById('repo-icon-select').value;
-            
-            if (!name || isNaN(target) || target <= 0) {
-                showStatus("Please provide a valid name and positive target amount.", 'danger');
-                return;
-            }
-
-            const newRepo = {
-                id: crypto.randomUUID(), 
-                name: name,
-                target: target,
-                current: 0.00,
-                icon: icon,
-            };
-
-            try {
-                await setDoc(getUserDocRef(userId), { 
-                    repositories: arrayUnion(newRepo) 
-                }, { merge: true });
-                showStatus(`Repository "${name}" created successfully!`, 'success');
-            } catch (error) {
-                console.error("Create repository error:", error);
-                showStatus("Failed to create repository.", 'danger');
-            }
-        }
-        
-        async function transferToRepo(repoId) {
-            const amountStr = prompt("Enter amount to transfer from Main Balance:");
-            if (amountStr === null) return;
-            const amount = parseFloat(amountStr);
-            
-            if (isNaN(amount) || amount <= 0) { showStatus("Invalid amount entered.", 'danger'); return; }
-
-            if (checkDemoMode()) {
-                 const currentBalance = window.currentUserData.mainBalance || 0;
-                 if (currentBalance < amount) { showStatus("Insufficient funds in Demo Main Balance.", 'danger'); return; }
-
-                 const repoIndex = window.currentUserData.repositories.findIndex(r => r.id === repoId);
-                 if (repoIndex === -1) return;
-                 
-                 window.currentUserData.mainBalance -= amount;
-                 window.currentUserData.repositories[repoIndex].current += amount;
-                 renderMainBalance();
-                 renderPersonalRepositories();
-                 return;
-            }
-
-
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const userDoc = await transaction.get(getUserDocRef(userId));
-                    const data = userDoc.data();
-                    const currentBalance = data.mainBalance || 0;
-                    let repositories = data.repositories || [];
-                    
-                    if (currentBalance < amount) {
-                        throw new Error("Insufficient funds in Main Balance.");
-                    }
-
-                    const repoIndex = repositories.findIndex(r => r.id === repoId);
-                    if (repoIndex === -1) {
-                         throw new Error("Repository not found.");
-                    }
-                    
-                    repositories[repoIndex].current += amount;
-                    transaction.update(getUserDocRef(userId), { 
-                        mainBalance: currentBalance - amount,
-                        repositories: repositories 
-                    });
-                });
-                showStatus(`BDT ${amount.toFixed(2)} transferred to repository.`, 'success');
-            } catch (error) {
-                console.error("Transfer error:", error);
-                showStatus(error.message || "Transfer failed.", 'danger');
-            }
-        }
-        
-        async function deleteRepo(repoId, repoName) {
-            const confirmDelete = window.confirm(`Are you sure you want to LIQUIDATE "${repoName}"? All saved funds will return to your Main Balance.`);
-            if (!confirmDelete) return;
-
-            if (checkDemoMode()) {
-                const repoIndex = window.currentUserData.repositories.findIndex(r => r.id === repoId);
-                if (repoIndex === -1) return;
-                
-                const refundAmount = window.currentUserData.repositories[repoIndex].current;
-                window.currentUserData.mainBalance += refundAmount;
-                window.currentUserData.repositories.splice(repoIndex, 1);
-                renderMainBalance();
-                renderPersonalRepositories();
-                showStatus(`Repository "${repoName}" liquidated (Demo). BDT ${refundAmount.toFixed(2)} refunded.`, 'success');
-                return;
-            }
-
-            try {
-                let refundAmount = 0;
-                await runTransaction(db, async (transaction) => {
-                    const userDoc = await transaction.get(getUserDocRef(userId));
-                    const data = userDoc.data();
-                    let repositories = data.repositories || [];
-                    
-                    const repo = repositories.find(r => r.id === repoId);
-                    if (!repo) {
-                         throw new Error("Repository not found.");
-                    }
-                    
-                    refundAmount = repo.current;
-                    const repoToRemove = { id: repo.id, name: repo.name, target: repo.target, current: repo.current, icon: repo.icon };
-                    
-                    transaction.update(getUserDocRef(userId), { 
-                        mainBalance: data.mainBalance + refundAmount,
-                        repositories: arrayRemove(repoToRemove)
-                    });
-                });
-                showStatus(`Repository "${repoName}" liquidated. BDT ${refundAmount.toFixed(2)} refunded to Main Balance.`, 'success');
-            } catch (error) {
-                console.error("Liquidation error:", error);
-                showStatus("Liquidation failed.", 'danger');
-            }
-        }
-        
-        // --- 6. GROUP FUNCTIONALITY ---
-
-        async function createGroup() {
-            if (checkDemoMode()) return;
-
-            const codeInput = document.getElementById('group-code');
-            const newCode = codeInput.value.trim().toUpperCase();
-            codeInput.value = '';
-            
-            if (newCode.length < 4 || newCode.length > 10) {
-                showStatus("Group name/code must be between 4 and 10 characters.", 'danger');
-                return;
-            }
-            
-            const targetAmountStr = prompt("Enter the TARGET amount for the new group fund (e.g., 50000):");
-            if (targetAmountStr === null) return;
-            const targetAmount = parseFloat(targetAmountStr);
-            
-            if (isNaN(targetAmount) || targetAmount <= 0) { showStatus("Invalid target amount.", 'danger'); return; }
-
-            try {
-                const groupRef = getGroupDocRef(newCode);
-                
-                await runTransaction(db, async (transaction) => {
-                    const groupDoc = await transaction.get(groupRef);
-                    if (groupDoc.exists()) {
-                        throw new Error("A group with this code already exists.");
-                    }
-
-                    transaction.set(groupRef, {
-                        accessCode: newCode,
-                        groupName: newCode, 
-                        target: targetAmount,
-                        currentBalance: 0.00,
-                        members: {
-                            [userId]: { contribution: 0.00, isAdmin: true } // Creator is admin
-                        }
-                    });
-                    
-                    transaction.update(getUserDocRef(userId), { 
-                        groups: arrayUnion(newCode)
-                    });
-                });
-                showStatus(`Group "${newCode}" created successfully!`, 'success');
-            } catch (error) {
-                console.error("Create group error:", error);
-                showStatus(error.message || "Failed to create group.", 'danger');
-            }
-        }
-
-        async function joinGroup() {
-            if (checkDemoMode()) return;
-
-            const codeInput = document.getElementById('group-code');
-            const code = codeInput.value.trim().toUpperCase();
-            codeInput.value = '';
-            
-            if (code.length < 4) {
-                showStatus("Please enter a valid access code.", 'danger');
-                return;
-            }
-
-            try {
-                const groupRef = getGroupDocRef(code);
-                
-                await runTransaction(db, async (transaction) => {
-                    const groupDoc = await transaction.get(groupRef);
-                    if (!groupDoc.exists()) {
-                        throw new Error("Group not found. Please check the code.");
-                    }
-                    
-                    const groupData = groupDoc.data();
-                    
-                    if (groupData.members && groupData.members[userId]) {
-                        throw new Error("You are already a member of this group.");
-                    }
-
-                    const updatedMembers = {
-                        ...groupData.members,
-                        [userId]: { contribution: 0.00, isAdmin: false }
-                    };
-
-                    transaction.update(groupRef, { members: updatedMembers });
-                    
-                    transaction.update(getUserDocRef(userId), { 
-                        groups: arrayUnion(code)
-                    });
-                });
-                showStatus(`Successfully joined group "${code}"!`, 'success');
-            } catch (error) {
-                console.error("Join group error:", error);
-                showStatus(error.message || "Failed to join group.", 'danger');
-            }
-        }
-        
-        async function depositToGroup(accessCode) {
-            if (checkDemoMode()) return;
-            // No demo logic for groups since they rely on public collaboration.
-
-            const amountStr = prompt(`Enter amount to transfer from Main Balance to group ${accessCode}:`);
-            if (amountStr === null) return;
-            const amount = parseFloat(amountStr);
-            
-            if (isNaN(amount) || amount <= 0) { showStatus("Invalid amount entered.", 'danger'); return; }
-            
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const userDoc = await transaction.get(getUserDocRef(userId));
-                    const groupDoc = await transaction.get(getGroupDocRef(accessCode));
-                    
-                    const userData = userDoc.data();
-                    const groupData = groupDoc.data();
-                    
-                    if (userData.mainBalance < amount) {
-                        throw new Error("Insufficient funds in Main Balance.");
-                    }
-                    
-                    // 1. Update User's Main Balance (Private Data)
-                    transaction.update(getUserDocRef(userId), { 
-                        mainBalance: userData.mainBalance - amount
-                    });
-                    
-                    // 2. Update Group Balance and User Contribution (Public Data)
-                    const currentGroupBalance = groupData.currentBalance || 0;
-                    const myContribution = groupData.members[userId]?.contribution || 0;
-                    const isAdmin = groupData.members[userId]?.isAdmin || false;
-
-                    const updatedMembers = {
-                        ...groupData.members,
-                        [userId]: { contribution: myContribution + amount, isAdmin: isAdmin }
-                    };
-                    
-                    transaction.update(getGroupDocRef(accessCode), { 
-                        currentBalance: currentGroupBalance + amount,
-                        members: updatedMembers
-                    });
-                });
-                showStatus(`BDT ${amount.toFixed(2)} deposited to group ${accessCode}.`, 'success');
-            } catch (error) {
-                console.error("Group deposit error:", error);
-                showStatus(error.message || "Group deposit failed.", 'danger');
-            }
-        }
-        
-        async function leaveGroup(accessCode, isAdmin) {
-            if (checkDemoMode()) return;
-
-            if (isAdmin) {
-                const confirmClose = window.confirm("WARNING: As admin, leaving will CLOSE the group! All funds will be returned to contributors. Proceed?");
-                if (!confirmClose) return;
-                
-                await liquidateGroup(accessCode);
-                
-            } else {
-                const confirmLeave = window.confirm("Are you sure you want to leave this group? Your contribution will remain in the fund until the group is closed by an admin.");
-                if (!confirmLeave) return;
-
-                try {
-                    await runTransaction(db, async (transaction) => {
-                        // 1. Remove user from group's member list (Public Data)
-                        const groupDoc = await transaction.get(getGroupDocRef(accessCode));
-                        const groupData = groupDoc.data();
-                        
-                        const updatedMembers = Object.keys(groupData.members).reduce((acc, key) => {
-                            if (key !== userId) {
-                                acc[key] = groupData.members[key];
-                            }
-                            return acc;
-                        }, {});
-
-                        transaction.update(getGroupDocRef(accessCode), { members: updatedMembers });
-
-                        // 2. Remove group reference from user's private document
-                        transaction.update(getUserDocRef(userId), { 
-                            groups: arrayRemove(accessCode)
-                        });
-                    });
-                    showStatus(`Successfully left group ${accessCode}. Your funds remain until liquidation.`, 'success');
-                } catch (error) {
-                    console.error("Leave group error:", error);
-                    showStatus(error.message || "Failed to leave group.", 'danger');
-                }
-            }
-        }
-
-        async function liquidateGroup(accessCode) {
-             try {
-                await runTransaction(db, async (transaction) => {
-                    const groupRef = getGroupDocRef(accessCode);
-                    const groupDoc = await transaction.get(groupRef);
-                    if (!groupDoc.exists()) return;
-
-                    const groupData = groupDoc.data();
-                    const members = groupData.members;
-
-                    for (const memberId in members) {
-                        const contribution = members[memberId].contribution;
-                        
-                        const userRefund = contribution; 
-                        
-                        const memberUserDocRef = getUserDocRef(memberId);
-                        const memberUserDoc = await transaction.get(memberUserDocRef);
-                        const memberUserData = memberUserDoc.data();
-
-                        if (memberUserDoc.exists()) {
-                            transaction.update(memberUserDocRef, {
-                                mainBalance: (memberUserData.mainBalance || 0) + userRefund,
-                                groups: arrayRemove(accessCode)
-                            });
-                        }
-                    }
-
-                    // 2. Delete the Group Document (Public Data)
-                    transaction.delete(groupRef);
-                });
-                showStatus(`Group ${accessCode} has been successfully closed and all contributions refunded.`, 'success');
-            } catch (error) {
-                console.error("Group liquidation error:", error);
-                showStatus(error.message || "Group liquidation failed.", 'danger');
-            }
-        }
-
-        // --- 7. UTILITY FUNCTIONS ---
-        
-        function showStatus(message, type = 'success') {
-            const statusDiv = document.getElementById('status-message');
-            statusDiv.textContent = message;
-            statusDiv.className = 'show'; // Remove other classes
-            statusDiv.style.backgroundColor = type === 'success' ? 'var(--color-success)' : type === 'danger' ? 'var(--color-danger)' : 'var(--color-warning)';
-            statusDiv.style.color = type === 'success' ? 'var(--color-darkest)' : 'var(--color-cream)';
-
-            setTimeout(() => {
-                statusDiv.className = '';
-            }, 3500);
-        }
-
-    </script>
+updateBalance();
+renderRepos();
+</script>
 </body>
 </html>
