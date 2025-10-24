@@ -3,149 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pledge-Box: Refined Demo Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<title>Pledge-Box ✨</title>
+
+<!-- Font -->
+<link href="https://fonts.cdnfonts.com/css/ethereal-signature" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
 :root {
-  --color-darkest: #1B1B16;
-  --color-muted-brown: #7A6851;
-  --color-light-taupe: #B5A494;
-  --color-cream: #E6D3B5;
-  --color-dark-olive: #3E3A2C;
-  --color-success: #6CB57E;
-  --color-danger: #C74E3E;
-  --color-warning: #C7A54E;
+  --color-darkest: #20201A;
+  --color-muted-brown: #907B60;
+  --color-light-taupe: #C1B6AE;
+  --color-cream: #E9D9C7;
+  --color-dark-olive: #474130;
 }
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  background-color: var(--color-darkest);
+  background: linear-gradient(160deg, var(--color-darkest), var(--color-dark-olive));
   color: var(--color-cream);
+  min-height: 100vh;
 }
+
+/* Header */
 header {
   text-align: center;
-  background-color: var(--color-dark-olive);
-  padding: 1.5rem;
-  border-bottom: 2px solid var(--color-muted-brown);
+  padding: 2rem 1rem 1rem;
 }
-header h1 {margin: 0; font-size: 2rem;}
-.demo-mode-banner {
-  background-color: var(--color-success);
-  color: var(--color-darkest);
-  padding: 0.5rem;
-  text-transform: uppercase;
-  font-weight: bold;
+header h1 {
+  font-family: 'Ethereal Signature', cursive;
+  font-size: 3rem;
+  margin: 0;
+  color: var(--color-cream);
+  letter-spacing: 1px;
 }
+header p {
+  color: var(--color-light-taupe);
+  font-size: 1rem;
+  margin-top: 0.3rem;
+}
+
+/* Layout */
 main {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
-  padding: 1.5rem;
+  padding: 2rem;
 }
 @media (max-width:900px){ main {grid-template-columns:1fr;} }
+
 .section-card {
-  background-color: var(--color-dark-olive);
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-.balance-display {
   background-color: var(--color-muted-brown);
-  padding: 1rem;
-  border-radius: 8px;
-  font-size: 1.5rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  color: var(--color-cream);
+  color: var(--color-darkest);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+  transition: transform 0.3s ease;
 }
+.section-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Balance Display */
+.balance-display {
+  background-color: var(--color-dark-olive);
+  color: var(--color-cream);
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+/* Inputs */
 input, select {
   width: 100%;
   padding: 0.6rem;
   margin: 0.4rem 0 1rem;
-  border-radius: 6px;
   border: 1px solid var(--color-light-taupe);
-  background-color: var(--color-darkest);
-  color: var(--color-cream);
+  border-radius: 6px;
+  background-color: var(--color-light-taupe);
+  color: var(--color-darkest);
   font-family: inherit;
 }
 input::placeholder {
-  color: var(--color-light-taupe);
+  color: var(--color-dark-olive);
 }
+
+/* Buttons */
 .btn {
-  padding: .7rem 1rem;
+  padding: .7rem 1.1rem;
   border: none;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: 0.3s ease;
+  margin-right: .5rem;
 }
 .btn-primary {
-  background-color: var(--color-success);
+  background-color: var(--color-cream);
   color: var(--color-darkest);
 }
 .btn-primary:hover {
-  background-color: #5aa76f;
+  background-color: var(--color-light-taupe);
 }
 .btn-secondary {
-  background-color: var(--color-light-taupe);
-  color: var(--color-darkest);
-}
-.btn-secondary:hover {
-  background-color: var(--color-muted-brown);
+  background-color: var(--color-dark-olive);
   color: var(--color-cream);
 }
+.btn-secondary:hover {
+  background-color: var(--color-darkest);
+}
 .btn-danger {
-  background-color: var(--color-danger);
+  background-color: #C85250;
   color: var(--color-cream);
 }
 .btn-danger:hover {
-  background-color: #b54135;
+  background-color: #a6413f;
 }
+
+/* Lists */
 .repo-list, .group-list {
-  display:flex;flex-direction:column;gap:1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 .repo-item, .group-item {
-  display:flex;align-items:center;justify-content:space-between;
-  background-color: var(--color-muted-brown);
-  padding:1rem;border-radius:8px;
+  background-color: var(--color-cream);
+  color: var(--color-darkest);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .progress-bar-container {
-  width:100%;background-color:var(--color-darkest);
-  height:10px;border-radius:4px;overflow:hidden;
+  width: 100%;
+  background-color: var(--color-light-taupe);
+  height: 8px;
+  border-radius: 4px;
+  margin-top: .4rem;
 }
 .progress-bar {
-  background-color:var(--color-success);
-  height:100%;
-}
-footer {
   background-color: var(--color-dark-olive);
-  color: var(--color-light-taupe);
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+/* Footer */
+footer {
   text-align: center;
-  padding: .5rem;
+  color: var(--color-light-taupe);
+  padding: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  font-size: .9rem;
 }
 </style>
 </head>
 <body>
 <header>
-  <div class="demo-mode-banner">DEMO MODE ENABLED ✅</div>
   <h1>Pledge-Box</h1>
-  <p>Your secure space for goal-oriented and collaborative savings.</p>
+  <p>Grow your dreams through mindful saving 🌿</p>
 </header>
 
 <main>
   <div class="section-card">
     <h2>Personal Goal Locker</h2>
     <div class="balance-display">Main Balance: BDT <span id="main-balance">0.00</span></div>
-    <label>Deposit to Main Balance:</label>
-    <input type="number" id="deposit-amount" placeholder="Enter amount" min="1">
+    <input type="number" id="deposit-amount" placeholder="Deposit amount (BDT)" min="1">
     <button class="btn btn-primary" onclick="depositToMain()">Deposit</button>
 
     <h3>Create New Repository</h3>
-    <label>Repository Name:</label>
-    <input type="text" id="repo-name" placeholder="e.g., Trip, Phone">
-    <label>Target Amount:</label>
-    <input type="number" id="repo-target" placeholder="5000" min="1">
-    <label>Choose Icon:</label>
+    <input type="text" id="repo-name" placeholder="Repository name">
+    <input type="number" id="repo-target" placeholder="Target amount (BDT)" min="1">
     <select id="repo-icon">
       <option>✈️ Travel</option>
       <option>🏠 Home</option>
@@ -160,14 +191,10 @@ footer {
   </div>
 
   <div class="section-card">
-    <h2>Group Savings (Demo Mode)</h2>
+    <h2>Group Savings</h2>
     <div class="balance-display">Total Groups: <span id="group-count">0</span></div>
-
-    <h3>Create Group</h3>
-    <label>Group Name:</label>
-    <input type="text" id="group-name" placeholder="e.g., Family Fund">
-    <label>Target Amount:</label>
-    <input type="number" id="group-target" placeholder="10000" min="1">
+    <input type="text" id="group-name" placeholder="Group name">
+    <input type="number" id="group-target" placeholder="Target amount (BDT)" min="1">
     <button class="btn btn-primary" onclick="createGroup()">Create Group</button>
 
     <h3>My Groups</h3>
@@ -175,137 +202,112 @@ footer {
   </div>
 </main>
 
-<footer>&copy; 2025 Pledge-Box. Full demo mode enabled.</footer>
+<footer>© 2025 Pledge-Box | Designed with ♥ using Ethereal Signature style</footer>
 
 <script>
-let userData = {
-  mainBalance: 0,
-  repositories: [],
-  groups: []
-};
+let userData = { mainBalance: 0, repositories: [], groups: [] };
 
-// PERSONAL REPOS
-function updateBalance() {
+function updateBalance(){
   document.getElementById('main-balance').textContent = userData.mainBalance.toFixed(2);
 }
-function renderRepos() {
-  const list = document.getElementById('repo-list');
-  if (userData.repositories.length === 0) {
-    list.innerHTML = '<p style="color:var(--color-light-taupe)">No repositories yet.</p>';
-    return;
+function renderRepos(){
+  const list=document.getElementById('repo-list');
+  if(!userData.repositories.length){
+    list.innerHTML='<p>No repositories yet.</p>';return;
   }
-  list.innerHTML = userData.repositories.map(r => {
-    const pct = Math.min(100, (r.current / r.target) * 100);
-    return `
-      <div class="repo-item">
-        <div style="flex:1">
-          <strong>${r.icon} ${r.name}</strong><br>
-          <small>BDT ${r.current.toFixed(2)} / ${r.target.toFixed(2)}</small>
-          <div class="progress-bar-container"><div class="progress-bar" style="width:${pct}%"></div></div>
-        </div>
-        <div>
-          <button class="btn btn-secondary" onclick="fundRepo('${r.id}')">Fund</button>
-          <button class="btn btn-danger" onclick="deleteRepo('${r.id}')">Delete</button>
-        </div>
-      </div>`;
+  list.innerHTML=userData.repositories.map(r=>{
+    const pct=Math.min(100,(r.current/r.target)*100);
+    return `<div class='repo-item'>
+      <div style='flex:1'>
+        <strong>${r.icon} ${r.name}</strong><br>
+        <small>BDT ${r.current.toFixed(2)} / ${r.target.toFixed(2)}</small>
+        <div class='progress-bar-container'><div class='progress-bar' style='width:${pct}%'></div></div>
+      </div>
+      <div>
+        <button class='btn btn-secondary' onclick='fundRepo("${r.id}")'>Fund</button>
+        <button class='btn btn-danger' onclick='deleteRepo("${r.id}")'>Delete</button>
+      </div></div>`;
   }).join('');
 }
-function depositToMain() {
-  const val = parseFloat(document.getElementById('deposit-amount').value);
-  if (isNaN(val) || val <= 0) return alert("Enter valid amount");
-  userData.mainBalance += val;
+function depositToMain(){
+  const val=parseFloat(document.getElementById('deposit-amount').value);
+  if(isNaN(val)||val<=0)return alert("Enter valid amount");
+  userData.mainBalance+=val;
   updateBalance();
-  document.getElementById('deposit-amount').value = '';
+  document.getElementById('deposit-amount').value='';
 }
-function createRepo() {
-  const name = document.getElementById('repo-name').value.trim();
-  const target = parseFloat(document.getElementById('repo-target').value);
-  const icon = document.getElementById('repo-icon').value.split(' ')[0];
-  if (!name || isNaN(target) || target <= 0) return alert("Enter valid name and target");
-  const repo = { id: Math.random().toString(36).substring(2,8), name, target, current: 0, icon };
-  userData.repositories.push(repo);
-  document.getElementById('repo-name').value = '';
-  document.getElementById('repo-target').value = '';
+function createRepo(){
+  const name=document.getElementById('repo-name').value.trim();
+  const target=parseFloat(document.getElementById('repo-target').value);
+  const icon=document.getElementById('repo-icon').value.split(' ')[0];
+  if(!name||isNaN(target)||target<=0)return alert("Enter valid name and target");
+  userData.repositories.push({id:Math.random().toString(36).substr(2,6),name,target,current:0,icon});
+  document.getElementById('repo-name').value='';
+  document.getElementById('repo-target').value='';
   renderRepos();
 }
-function fundRepo(id) {
-  const repo = userData.repositories.find(r => r.id === id);
-  if (!repo) return;
-  const amount = parseFloat(prompt("Enter amount to fund:"));
-  if (isNaN(amount) || amount <= 0) return alert("Invalid amount");
-  if (amount > userData.mainBalance) return alert("Not enough in main balance");
-  userData.mainBalance -= amount;
-  repo.current += amount;
-  updateBalance();
-  renderRepos();
+function fundRepo(id){
+  const repo=userData.repositories.find(r=>r.id===id);
+  const amount=parseFloat(prompt("Enter amount:"));
+  if(isNaN(amount)||amount<=0)return;
+  if(amount>userData.mainBalance)return alert("Not enough balance");
+  repo.current+=amount;
+  userData.mainBalance-=amount;
+  updateBalance();renderRepos();
 }
-function deleteRepo(id) {
-  const repo = userData.repositories.find(r => r.id === id);
-  if (!repo) return;
-  if (!confirm(`Delete ${repo.name}?`)) return;
-  userData.mainBalance += repo.current;
-  userData.repositories = userData.repositories.filter(r => r.id !== id);
-  updateBalance();
-  renderRepos();
+function deleteRepo(id){
+  const repo=userData.repositories.find(r=>r.id===id);
+  if(confirm(`Delete ${repo.name}?`)){
+    userData.mainBalance+=repo.current;
+    userData.repositories=userData.repositories.filter(r=>r.id!==id);
+    updateBalance();renderRepos();
+  }
 }
 
-// GROUP SAVINGS
-function renderGroups() {
-  document.getElementById('group-count').textContent = userData.groups.length;
-  const list = document.getElementById('group-list');
-  if (userData.groups.length === 0) {
-    list.innerHTML = '<p style="color:var(--color-light-taupe)">No groups yet.</p>';
-    return;
-  }
-  list.innerHTML = userData.groups.map(g => {
-    const pct = Math.min(100, (g.current / g.target) * 100);
-    return `
-      <div class="group-item">
-        <div style="flex:1">
-          <strong>👥 ${g.name}</strong><br>
-          <small>BDT ${g.current.toFixed(2)} / ${g.target.toFixed(2)} | Members: ${g.members.join(", ")}</small>
-          <div class="progress-bar-container"><div class="progress-bar" style="width:${pct}%"></div></div>
-        </div>
-        <div>
-          <button class="btn btn-secondary" onclick="fundGroup('${g.id}')">Fund</button>
-          <button class="btn btn-danger" onclick="deleteGroup('${g.id}')">Delete</button>
-        </div>
-      </div>`;
+/* GROUP SAVINGS */
+function renderGroups(){
+  document.getElementById('group-count').textContent=userData.groups.length;
+  const list=document.getElementById('group-list');
+  if(!userData.groups.length){list.innerHTML='<p>No groups yet.</p>';return;}
+  list.innerHTML=userData.groups.map(g=>{
+    const pct=Math.min(100,(g.current/g.target)*100);
+    return `<div class='group-item'>
+      <div style='flex:1'>
+        <strong>👥 ${g.name}</strong><br>
+        <small>BDT ${g.current.toFixed(2)} / ${g.target.toFixed(2)} | Members: ${g.members.join(", ")}</small>
+        <div class='progress-bar-container'><div class='progress-bar' style='width:${pct}%'></div></div>
+      </div>
+      <div>
+        <button class='btn btn-secondary' onclick='fundGroup("${g.id}")'>Fund</button>
+        <button class='btn btn-danger' onclick='deleteGroup("${g.id}")'>Delete</button>
+      </div></div>`;
   }).join('');
 }
-function createGroup() {
-  const name = document.getElementById('group-name').value.trim();
-  const target = parseFloat(document.getElementById('group-target').value);
-  if (!name || isNaN(target) || target <= 0) return alert("Enter valid name and target");
-  const group = {
-    id: Math.random().toString(36).substring(2,8),
-    name, target, current: 0,
-    members: ["You"]
-  };
-  userData.groups.push(group);
-  document.getElementById('group-name').value = '';
-  document.getElementById('group-target').value = '';
+function createGroup(){
+  const name=document.getElementById('group-name').value.trim();
+  const target=parseFloat(document.getElementById('group-target').value);
+  if(!name||isNaN(target)||target<=0)return alert("Enter valid name and target");
+  userData.groups.push({id:Math.random().toString(36).substr(2,6),name,target,current:0,members:["You"]});
+  document.getElementById('group-name').value='';
+  document.getElementById('group-target').value='';
   renderGroups();
 }
-function fundGroup(id) {
-  const group = userData.groups.find(g => g.id === id);
-  if (!group) return;
-  const amount = parseFloat(prompt("Enter amount to contribute:"));
-  if (isNaN(amount) || amount <= 0) return alert("Invalid amount");
-  if (amount > userData.mainBalance) return alert("Not enough in main balance");
-  userData.mainBalance -= amount;
-  group.current += amount;
-  updateBalance();
-  renderGroups();
+function fundGroup(id){
+  const group=userData.groups.find(g=>g.id===id);
+  const amount=parseFloat(prompt("Enter amount:"));
+  if(isNaN(amount)||amount<=0)return;
+  if(amount>userData.mainBalance)return alert("Not enough balance");
+  group.current+=amount;
+  userData.mainBalance-=amount;
+  updateBalance();renderGroups();
 }
-function deleteGroup(id) {
-  const group = userData.groups.find(g => g.id === id);
-  if (!group) return;
-  if (!confirm(`Delete ${group.name}?`)) return;
-  userData.mainBalance += group.current;
-  userData.groups = userData.groups.filter(g => g.id !== id);
-  updateBalance();
-  renderGroups();
+function deleteGroup(id){
+  const g=userData.groups.find(g=>g.id===id);
+  if(confirm(`Delete ${g.name}?`)){
+    userData.mainBalance+=g.current;
+    userData.groups=userData.groups.filter(x=>x.id!==id);
+    updateBalance();renderGroups();
+  }
 }
 
 updateBalance();
@@ -314,4 +316,3 @@ renderGroups();
 </script>
 </body>
 </html>
-
